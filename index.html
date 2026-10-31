@@ -1,0 +1,2229 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>干支八字雙盤對比與神煞專業排盤器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700;900&family=Inter:wght@400;500;600&display=swap');
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, 'Inter', 'Noto Serif TC', serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        select, input {
+            font-size: 14px;
+            color: #0f172a !important;
+        }
+        button {
+            font-size: 14px;
+        }
+
+        select option {
+            background-color: #ffffff !important;
+            color: #0f172a !important;
+        }
+
+        .color-wood { color: #16a34a !important; }
+        .color-fire { color: #dc2626 !important; }
+        .color-earth { color: #854d0e !important; }
+        .color-metal { color: #d97706 !important; }
+        .color-water { color: #1d4ed8 !important; }
+
+        .bg-wood { background-color: #16a34a; }
+        .bg-fire { background-color: #dc2626; }
+        .bg-earth { background-color: #854d0e; }
+        .bg-metal { background-color: #d97706; }
+        .bg-water { background-color: #1d4ed8; }
+
+        .scrollbar-thin::-webkit-scrollbar {
+            height: 6px;
+        }
+        .scrollbar-thin::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .overflow-x-auto {
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+        }
+
+        /* Tab styles */
+        .tab-btn {
+            transition: all 0.2s ease;
+            color: #334155;
+        }
+        .tab-btn.active {
+            background-color: #4f46e5 !important;
+            color: #ffffff !important;
+            border-color: #4f46e5 !important;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Rating buttons */
+        .rating-btn {
+            width: 2.25rem;
+            height: 2.25rem;
+            border-radius: 9999px;
+            border: 2px solid #cbd5e1;
+            background: white;
+            color: #0f172a;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: all 0.15s ease;
+            cursor: pointer;
+        }
+        .rating-btn:hover {
+            border-color: #6366f1;
+            background: #eef2ff;
+        }
+        .rating-btn.selected {
+            background: #4f46e5 !important;
+            color: #ffffff !important;
+            border-color: #4f46e5 !important;
+            transform: scale(1.1);
+        }
+        .rating-btn.selected-1 { background: #ef4444 !important; border-color: #ef4444 !important; color: #ffffff !important; }
+        .rating-btn.selected-2 { background: #f97316 !important; border-color: #f97316 !important; color: #ffffff !important; }
+        .rating-btn.selected-3 { background: #ca8a04 !important; border-color: #ca8a04 !important; color: #ffffff !important; }
+        .rating-btn.selected-4 { background: #16a34a !important; border-color: #16a34a !important; color: #ffffff !important; }
+        .rating-btn.selected-5 { background: #15803d !important; border-color: #15803d !important; color: #ffffff !important; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col justify-between p-0 m-0">
+
+    <header class="bg-white border-b border-slate-200 py-3 px-4 md:px-6 shadow-sm flex flex-col sm:flex-row justify-between items-center gap-2">
+        <div class="text-center sm:text-left">
+            <h1 class="text-base md:text-xl font-bold tracking-wider text-slate-900">干支八字雙盤對比與神煞專業排盤</h1>
+            <p class="text-[11px] text-slate-500 mt-0.5">控制設定置頂 ｜ 上方：命主本命盤 ｜ 下方：指定時間流盤 (月柱嚴格依節氣劃分)</p>
+        </div>
+    </header>
+
+    <!-- Tab Navigation -->
+    <div class="bg-white border-b border-slate-200 sticky top-0 z-20 shadow-sm">
+        <div class="max-w-6xl mx-auto px-2 sm:px-4 flex gap-1 py-2">
+            <button id="tab-chart-btn" class="tab-btn active flex-1 sm:flex-none px-4 py-2 text-sm font-semibold rounded-lg border border-indigo-600 bg-indigo-600 text-white">
+                排盤對比
+            </button>
+            <button id="tab-diary-btn" class="tab-btn flex-1 sm:flex-none px-4 py-2 text-sm font-semibold rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-50">
+                流日記錄
+            </button>
+        </div>
+    </div>
+
+    <main class="flex-grow max-w-6xl w-full mx-auto p-2 sm:p-4 md:p-6 flex flex-col gap-4">
+        
+        <!-- ==================== TAB 1: 排盤對比 ==================== -->
+        <div id="tab-chart" class="tab-content active">
+        
+        <!-- ==================== 控制台區 (置頂) ==================== -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+            
+            <!-- 上方盤：命主八字輸入控制 -->
+            <div class="bg-white rounded-xl p-3 sm:p-4 border border-amber-200 shadow-sm flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-center mb-2.5">
+                        <h2 class="text-xs font-bold text-amber-800 flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-amber-600"></span> 設定命主本命時間
+                        </h2>
+                        <input type="text" id="natal-name-input" placeholder="命主稱呼" value="命主本人" class="bg-amber-50/50 border border-amber-200 rounded-lg text-xs px-2 py-1 w-24 text-slate-900 focus:outline-none font-medium">
+                    </div>
+
+                    <div class="flex items-center gap-2 mb-2.5">
+                        <label class="text-[11px] text-slate-500 whitespace-nowrap">性別：</label>
+                        <select id="natal-gender" class="bg-slate-50 border border-slate-300 rounded-lg text-xs p-1.5 font-medium text-slate-900 focus:outline-none">
+                            <option value="男">乾造 (男)</option>
+                            <option value="女">坤造 (女)</option>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2 mb-2">
+                        <div>
+                            <label class="block text-[11px] text-slate-500 mb-0.5">出生年份</label>
+                            <select id="natal-select-year" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 font-medium"></select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-500 mb-0.5">出生月份</label>
+                            <select id="natal-select-month" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 font-medium"></select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 mb-2">
+                        <div>
+                            <label class="block text-[11px] text-slate-500 mb-0.5">出生日期</label>
+                            <select id="natal-select-day" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 font-medium"></select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-500 mb-0.5">出生時辰</label>
+                            <select id="natal-select-hour" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 font-medium"></select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-2 pt-2 border-t border-slate-100 flex justify-between items-center">
+                    <button id="load-sample-natal" class="text-amber-700 hover:underline text-[11px] cursor-pointer font-medium">載入範例八字</button>
+                    <button id="save-natal-btn" class="bg-amber-600 hover:bg-amber-500 text-white text-[11px] font-semibold px-3 py-1.5 rounded-lg transition duration-200 shadow-sm cursor-pointer">
+                        更新本命排盤
+                    </button>
+                </div>
+            </div>
+
+            <!-- 流年/流月/流日控制台 -->
+            <div class="bg-white rounded-xl p-3 sm:p-4 border border-indigo-200 shadow-sm flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-center mb-2.5">
+                        <h2 class="text-xs font-bold text-indigo-800 flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-indigo-600"></span> 流年、流月、流日控制
+                        </h2>
+                        <button id="set-now-flow-btn" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-[11px] font-medium px-2.5 py-1 rounded-lg transition duration-200 cursor-pointer">
+                            設為今天
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2 mb-2">
+                        <div>
+                            <label class="block text-[11px] text-slate-500 mb-0.5">指定流年 (Year)</label>
+                            <select id="active-year-select" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-xs text-slate-900 focus:outline-none focus:border-indigo-500 font-medium"></select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-500 mb-0.5">指定流月 (Month)</label>
+                            <select id="active-month-select" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-xs text-slate-900 focus:outline-none focus:border-indigo-500 font-medium">
+                                <option value="1">1月 (寅月·立春)</option>
+                                <option value="2">2月 (卯月·驚蟄)</option>
+                                <option value="3">3月 (辰月·清明)</option>
+                                <option value="4">4月 (巳月·立夏)</option>
+                                <option value="5">5月 (午月·芒種)</option>
+                                <option value="6">6月 (未月·小暑)</option>
+                                <option value="7">7月 (申月·立秋)</option>
+                                <option value="8">8月 (酉月·白露)</option>
+                                <option value="9">9月 (戌月·寒露)</option>
+                                <option value="10">10月 (亥月·立冬)</option>
+                                <option value="11">11月 (子月·大雪)</option>
+                                <option value="12">12月 (丑月·小寒)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-2">
+                        <label class="block text-[11px] text-slate-500 mb-0.5">指定流日 (Day)</label>
+                        <select id="active-day-select" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-1.5 text-xs text-slate-900 focus:outline-none focus:border-indigo-500 font-medium"></select>
+                    </div>
+                </div>
+
+                <div class="mt-2 pt-2 border-t border-slate-100 flex justify-between items-center text-[11px] text-slate-500">
+                    <span id="flow-lunar-display" class="font-medium text-indigo-700">節氣月：--</span>
+                    <button id="calc-flow-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-1.5 rounded-lg transition duration-200 shadow-sm cursor-pointer">
+                        更新流盤對比
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ==================== 本命盤與流日/流月/流年對比盤 ==================== -->
+        <div class="bg-white rounded-xl border border-amber-200 shadow-sm overflow-hidden">
+            <div class="bg-amber-600 text-white text-xs font-semibold px-3 sm:px-4 py-2 flex justify-between items-center flex-wrap gap-1">
+                <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-amber-300"></span> 命主本命八字與大運、流年、流月、流日對比盤</span>
+                <div class="text-right flex flex-col sm:flex-row gap-1 sm:gap-3 text-[11px] opacity-95">
+                    <span id="natal-name-label">預設命主</span>
+                    <span id="natal-lunar-label" class="text-amber-200 font-medium"></span>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-8 bg-amber-50/50 border-b border-amber-100 text-center py-1.5 text-xs font-semibold text-amber-800 gap-0.5 px-1 pt-1">
+                <div class="bg-rose-50/90 border border-rose-200 rounded-t-lg py-0.5 text-rose-900 text-[10px]" id="day-header-label">流日</div>
+                <div class="bg-purple-50/90 border border-purple-200 rounded-t-lg py-0.5 text-purple-900 text-[10px]" id="month-header-label">流月</div>
+                <div class="bg-emerald-50/90 border border-emerald-200 rounded-t-lg py-0.5 text-emerald-900 text-[10px]" id="year-header-label">流年</div>
+                <div class="bg-sky-50/90 border border-sky-200 rounded-t-lg py-0.5 text-sky-900 text-[10px]" id="luck-header-label">現行大運</div>
+                <div class="bg-amber-50/80 border border-amber-200 rounded-t-lg py-0.5 text-amber-900">時柱</div>
+                <div class="bg-amber-50/80 border border-amber-200 rounded-t-lg py-0.5 text-amber-900">日柱 (主)</div>
+                <div class="bg-amber-50/80 border border-amber-200 rounded-t-lg py-0.5 text-amber-900">月柱</div>
+                <div class="bg-amber-50/80 border border-amber-200 rounded-t-lg py-0.5 text-amber-900">年柱</div>
+            </div>
+
+            <!-- 天干 Row -->
+            <div class="grid grid-cols-8 bg-white items-center py-2 min-h-[75px] gap-0.5 px-1">
+                <div class="flex justify-center items-center bg-rose-50/40 border border-rose-200 rounded-lg h-full shadow-sm" id="stem-current-day-container"></div>
+                <div class="flex justify-center items-center bg-purple-50/40 border border-purple-200 rounded-lg h-full shadow-sm" id="stem-current-month-container"></div>
+                <div class="flex justify-center items-center bg-emerald-50/40 border border-emerald-200 rounded-lg h-full shadow-sm" id="stem-current-year-container"></div>
+                <div class="flex justify-center items-center bg-sky-50/40 border border-sky-200 rounded-lg h-full shadow-sm" id="stem-current-luck-container"></div>
+                <div class="flex justify-center items-center border border-amber-200/80 bg-amber-50/20 rounded-lg h-full shadow-sm" id="natal-stem-hour-container"></div>
+                <div class="flex justify-center items-center border border-amber-200/80 bg-amber-50/20 rounded-lg h-full shadow-sm" id="natal-stem-day-container"></div>
+                <div class="flex justify-center items-center border border-amber-200/80 bg-amber-50/20 rounded-lg h-full shadow-sm" id="natal-stem-month-container"></div>
+                <div class="flex justify-center items-center border border-amber-200/80 bg-amber-50/20 rounded-lg h-full shadow-sm" id="natal-stem-year-container"></div>
+            </div>
+
+            <!-- 地支 Row -->
+            <div class="grid grid-cols-8 items-start py-2 min-h-[95px] gap-0.5 px-1">
+                <div class="flex justify-center items-start bg-rose-50/40 border border-rose-200 rounded-lg h-full shadow-sm" id="branch-current-day-container"></div>
+                <div class="flex justify-center items-start bg-purple-50/40 border border-purple-200 rounded-lg h-full shadow-sm" id="branch-current-month-container"></div>
+                <div class="flex justify-center items-start bg-emerald-50/40 border border-emerald-200 rounded-lg h-full shadow-sm" id="branch-current-year-container"></div>
+                <div class="flex justify-center items-start bg-sky-50/40 border border-sky-200 rounded-lg h-full shadow-sm" id="branch-current-luck-container"></div>
+                <div class="flex justify-center items-start border border-amber-200/80 bg-amber-50/20 rounded-lg h-full shadow-sm" id="natal-branch-hour-container"></div>
+                <div class="flex justify-center items-start border border-amber-200/80 bg-amber-50/20 rounded-lg h-full shadow-sm" id="natal-branch-day-container"></div>
+                <div class="flex justify-center items-start border border-amber-200/80 bg-amber-50/20 rounded-lg h-full shadow-sm" id="natal-branch-month-container"></div>
+                <div class="flex justify-center items-start border border-amber-200/80 bg-amber-50/20 rounded-lg h-full shadow-sm" id="natal-branch-year-container"></div>
+            </div>
+
+            <!-- 神煞 Row -->
+            <div class="grid grid-cols-8 bg-slate-50 border-t border-slate-200 items-center py-1.5 min-h-[40px] gap-0.5 px-1 pb-1.5">
+                <div class="flex flex-wrap justify-center gap-1 p-0.5 bg-rose-50/30 border border-rose-200 rounded-lg h-full" id="natal-shensha-day-container-extra"></div>
+                <div class="flex flex-wrap justify-center gap-1 p-0.5 bg-purple-50/30 border border-purple-200 rounded-lg h-full" id="natal-shensha-month-container-extra"></div>
+                <div class="flex flex-wrap justify-center gap-1 p-0.5 bg-emerald-50/30 border border-emerald-200 rounded-lg h-full" id="natal-shensha-year-container-extra"></div>
+                <div class="flex flex-wrap justify-center gap-1 p-0.5 bg-sky-50/30 border border-sky-200 rounded-lg h-full" id="natal-shensha-luck-container"></div>
+                <div class="flex flex-wrap justify-center gap-1 p-0.5 border border-amber-200/60 bg-amber-50/10 rounded-lg" id="natal-shensha-hour-container"></div>
+                <div class="flex flex-wrap justify-center gap-1 p-0.5 border border-amber-200/60 bg-amber-50/10 rounded-lg" id="natal-shensha-day-container"></div>
+                <div class="flex flex-wrap justify-center gap-1 p-0.5 border border-amber-200/60 bg-amber-50/10 rounded-lg" id="natal-shensha-month-container"></div>
+                <div class="flex flex-wrap justify-center gap-1 p-0.5 border border-amber-200/60 bg-amber-50/10 rounded-lg" id="natal-shensha-year-container"></div>
+            </div>
+
+            <!-- 五行力量分析條 -->
+            <div class="bg-amber-50/30 border-t border-slate-200 p-2.5">
+                <div class="text-[11px] font-bold text-amber-900 mb-1.5 flex justify-between items-center">
+                    <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-amber-600"></span> 本命五行力量統計 (含藏干比重)</span>
+                    <span id="elements-score-total" class="text-[10px] text-slate-500 font-normal">總權重：10.0</span>
+                </div>
+                <div class="grid grid-cols-5 gap-1.5 text-center text-xs">
+                    <div class="bg-white p-1 rounded-lg border border-amber-200">
+                        <div class="color-wood font-bold">木</div>
+                        <div id="score-wood" class="text-slate-700 font-medium text-[10px]">0.0</div>
+                        <div class="w-full bg-slate-100 h-1.5 rounded-full mt-0.5 overflow-hidden">
+                            <div id="bar-wood" class="bg-wood h-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-1 rounded-lg border border-amber-200">
+                        <div class="color-fire font-bold">火</div>
+                        <div id="score-fire" class="text-slate-700 font-medium text-[10px]">0.0</div>
+                        <div class="w-full bg-slate-100 h-1.5 rounded-full mt-0.5 overflow-hidden">
+                            <div id="bar-fire" class="bg-fire h-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-1 rounded-lg border border-amber-200">
+                        <div class="color-earth font-bold">土</div>
+                        <div id="score-earth" class="text-slate-700 font-medium text-[10px]">0.0</div>
+                        <div class="w-full bg-slate-100 h-1.5 rounded-full mt-0.5 overflow-hidden">
+                            <div id="bar-earth" class="bg-earth h-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-1 rounded-lg border border-amber-200">
+                        <div class="color-metal font-bold">金</div>
+                        <div id="score-metal" class="text-slate-700 font-medium text-[10px]">0.0</div>
+                        <div class="w-full bg-slate-100 h-1.5 rounded-full mt-0.5 overflow-hidden">
+                            <div id="bar-metal" class="bg-metal h-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-1 rounded-lg border border-amber-200">
+                        <div class="color-water font-bold">水</div>
+                        <div id="score-water" class="text-slate-700 font-medium text-[10px]">0.0</div>
+                        <div class="w-full bg-slate-100 h-1.5 rounded-full mt-0.5 overflow-hidden">
+                            <div id="bar-water" class="bg-water h-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 完整大運列表檢視區 -->
+            <div class="bg-slate-50 border-t border-slate-200 p-2.5">
+                <div class="flex justify-between items-center mb-1.5 flex-wrap gap-2">
+                    <span id="luck-start-age-label" class="text-[11px] font-bold text-slate-700 flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-amber-600"></span> 一生大運走勢（點擊可切換大運對比）
+                    </span>
+                </div>
+                <div id="luck-pillars-container" class="flex gap-1.5 overflow-x-auto pb-1.5 pt-0.5 scrollbar-thin"></div>
+
+                <!-- 選擇大運對應的十個流年顯示區 -->
+                <div id="luck-years-section" class="mt-2 pt-2 border-t border-slate-200">
+                    <div id="luck-years-title" class="text-[11px] font-bold text-slate-700 mb-1.5 flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-600"></span> 所選大運對應之十個流年（點擊可將對比盤切換至該流年）
+                    </div>
+                    <div id="luck-years-container" class="grid grid-cols-5 sm:grid-cols-10 gap-1 overflow-x-auto pb-1 scrollbar-thin"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== 十神性情與職業類象對照表 ==================== -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="bg-indigo-900 text-white text-xs font-semibold px-4 py-2 flex justify-between items-center">
+                <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-indigo-300"></span> 十神性情、六親代表與正負面類象對照表</span>
+                <span class="text-[11px] text-indigo-200">命理核心十神解析 (可左右滑動檢視完整內容)</span>
+            </div>
+            <div class="p-3">
+                <div class="overflow-x-auto scrollbar-thin pb-2">
+                    <table class="w-full text-left text-xs border-collapse min-w-[750px]">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-700 border-b border-slate-200">
+                                <th class="p-2 font-semibold w-16">十神</th>
+                                <th class="p-2 font-semibold w-24">六親代表</th>
+                                <th class="p-2 font-semibold text-emerald-800 bg-emerald-50/60 w-1/3">🟢 正面類象 (優勢 / 吉)</th>
+                                <th class="p-2 font-semibold text-rose-800 bg-rose-50/60 w-1/3">🔴 負面類象 (隱憂 / 忌)</th>
+                                <th class="p-2 font-semibold">適合職業與領域</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-slate-700">
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-2 font-bold text-indigo-700">比肩 (比)</td>
+                                <td class="p-2 text-slate-500">兄弟、朋友、同輩 / 剋財星</td>
+                                <td class="p-2 text-emerald-900 bg-emerald-50/20 font-medium">自信獨立、意志堅定、重諾講義氣、自主創業、同心協力。</td>
+                                <td class="p-2 text-rose-900 bg-rose-50/20">固執己見、孤傲不群、好勝心過強、易與人爭執、破財損妻。</td>
+                                <td class="p-2">合夥創業、工作室、運動員、技術開創、同業競爭。</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-2 font-bold text-indigo-700">劫財 (劫)</td>
+                                <td class="p-2 text-slate-500">義氣兄弟、競爭者 / 剋正財</td>
+                                <td class="p-2 text-emerald-900 bg-emerald-50/20 font-medium">豪爽慷慨、社交能力強、行動力敏捷、敢作敢當、突破力佳。</td>
+                                <td class="p-2 text-rose-900 bg-rose-50/20">投機心重、行事衝動、好賭破財、佔有欲強、易惹是非。</td>
+                                <td class="p-2">推銷業務、公關、冒險投資、開拓市場、流動性強工作。</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-2 font-bold text-teal-700">食神 (食)</td>
+                                <td class="p-2 text-slate-500">子息、晚輩 / 剋七殺</td>
+                                <td class="p-2 text-emerald-900 bg-emerald-50/20 font-medium">溫和寬容、樂觀知足、才華洋溢、口福絕佳、善解人意。</td>
+                                <td class="p-2 text-rose-900 bg-rose-50/20">怠惰少動、過度追求享樂、缺乏企圖心、言多必失。</td>
+                                <td class="p-2">餐飲美食、藝術創作、文化教育、企劃設計、休閒旅遊。</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-2 font-bold text-teal-700">傷官 (傷)</td>
+                                <td class="p-2 text-slate-500">子息、晚輩 / 剋正官</td>
+                                <td class="p-2 text-emerald-900 bg-emerald-50/20 font-medium">聰明絕頂、反應極快、表現力強、追求創新、具批判改革眼光。</td>
+                                <td class="p-2 text-rose-900 bg-rose-50/20">叛逆傲慢、言詞犀利傷人、目中無人、挑戰法紀權威、招惹官非。</td>
+                                <td class="p-2">律師法官、演藝表演、作家評論、高科技研發、設計師。</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-2 font-bold text-amber-700">偏財 (才)</td>
+                                <td class="p-2 text-slate-500">男命之父/情緣 / 剋印星</td>
+                                <td class="p-2 text-emerald-900 bg-emerald-50/20 font-medium">慷慨海派、交際手腕高明、商機敏銳、財源廣進、富投機眼光。</td>
+                                <td class="p-2 text-rose-900 bg-rose-50/20">花錢大手大腳、感情不專一、浮華不實、重財輕義、財務風險高。</td>
+                                <td class="p-2">股票金融、房地產投資、貿易批發、流動資產、商業營銷。</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-2 font-bold text-amber-700">正財 (財)</td>
+                                <td class="p-2 text-slate-500">男命之妻 / 剋正印</td>
+                                <td class="p-2 text-emerald-900 bg-emerald-50/20 font-medium">踏實穩重、勤儉持家、做事有計畫、重信用、責任感極強。</td>
+                                <td class="p-2 text-rose-900 bg-rose-50/20">過度保守吝嗇、目光短淺、固執死板、缺乏變通、因財失義。</td>
+                                <td class="p-2">銀行財會、固定薪資管理、實業經營、傳統零售、行政管理。</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-2 font-bold text-blue-700">七殺 / 偏官 (殺)</td>
+                                <td class="p-2 text-slate-500">女命之偏夫 / 剋日主</td>
+                                <td class="p-2 text-emerald-900 bg-emerald-50/20 font-medium">威嚴果斷、企圖心極強、具領導統御力、抗壓性高、開拓力強。</td>
+                                <td class="p-2 text-rose-900 bg-rose-50/20">暴躁剛烈、疑心病重、好勇鬥狠、壓力過大焦慮、易惹小人。</td>
+                                <td class="p-2">軍警檢調、高階主管、企業CEO、工程建造、外科醫生。</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-2 font-bold text-blue-700">正官 (官)</td>
+                                <td class="p-2 text-slate-500">女命之丈夫 / 剋日主</td>
+                                <td class="p-2 text-emerald-900 bg-emerald-50/20 font-medium">正直守法、責任感重、重視名譽、自律性高、公正無私、受人尊崇。</td>
+                                <td class="p-2 text-rose-900 bg-rose-50/20">因循守舊、優柔寡斷、拘泥形式、缺乏魄力、承受過多道德束縛。</td>
+                                <td class="p-2">公職公務員、大企業管理層、法務、行政監督、教育管理。</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-2 font-bold text-purple-700">偏印 / 梟神 (梟)</td>
+                                <td class="p-2 text-slate-500">繼母、祖父母 / 剋食神</td>
+                                <td class="p-2 text-emerald-900 bg-emerald-50/20 font-medium">心思細密、直覺力超群、學識淵博、喜鑽研神祕哲學與冷門技術。</td>
+                                <td class="p-2 text-rose-900 bg-rose-50/20">孤僻冷漠、多疑善變、內心苦門、刻薄寡恩、阻礙福祿與才華。</td>
+                                <td class="p-2">玄學命理、哲學宗教、心理諮商、尖端科研、獨門特種技術。</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-2 font-bold text-purple-700">正印 (印)</td>
+                                <td class="p-2 text-slate-500">生母、長輩 / 剋傷官</td>
+                                <td class="p-2 text-emerald-900 bg-emerald-50/20 font-medium">心地仁慈、重情義、好學深思、包容力強、追求精神內心安定。</td>
+                                <td class="p-2 text-rose-900 bg-rose-50/20">依賴心重、缺乏獨立自主能力、死愛面子、思想迂腐、怠惰被動。</td>
+                                <td class="p-2">學校教育、學術研究、慈善公益、圖書文史、行政文職。</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== 十天干身體對照表 ==================== -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="bg-slate-700 text-white text-xs font-semibold px-4 py-2 flex justify-between items-center">
+                <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-slate-300"></span> 十天干身體器官與部位對照表</span>
+                <span class="text-[11px] text-slate-300">傳統命理醫理參考 (可左右滑動)</span>
+            </div>
+            <div class="p-3">
+                <div class="overflow-x-auto scrollbar-thin pb-2">
+                    <table class="w-full text-left text-xs border-collapse min-w-[500px]">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-700 border-b border-slate-200">
+                                <th class="p-2 font-semibold">天干</th>
+                                <th class="p-2 font-semibold">五行</th>
+                                <th class="p-2 font-semibold">對應身體部位 / 五官</th>
+                                <th class="p-2 font-semibold">對應臟腑 / 經絡</th>
+                                <th class="p-2 font-semibold">常見健康參考象意</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-slate-700">
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-2 font-bold color-wood">甲</td>
+                                <td class="p-2 text-slate-500">陽木</td>
+                                <td class="p-2">頭、頭髮、臉面、膽道</td>
+                                <td class="p-2">肝膽、筋膜、神經系統</td>
+                                <td class="p-2">主頭暈、脫髮、肝膽機能、筋骨痠痛</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-2 font-bold color-wood">乙</td>
+                                <td class="p-2 text-slate-500">陰木</td>
+                                <td class="p-2">頸部,肩膀,四肢,毛髮</td>
+                                <td class="p-2">肝、膽、毛細血管、神經末梢</td>
+                                <td class="p-2">主肩頸僵硬、四肢麻木、肝氣鬱結</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-2 font-bold color-fire">丙</td>
+                                <td class="p-2 text-slate-500">陽火</td>
+                                <td class="p-2">額頭、眼睛、肩膀、心血管</td>
+                                <td class="p-2">小腸、心臟、眼目、血液循環</td>
+                                <td class="p-2">主眼目昏花、心悸、血壓、發炎</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-2 font-bold color-fire">丁</td>
+                                <td class="p-2 text-slate-500">陰火</td>
+                                <td class="p-2">舌頭、面部、心系、血管</td>
+                                <td class="p-2">心包絡-血液、神經中樞</td>
+                                <td class="p-2">主心神不寧、失眠、神經衰弱、視力</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-2 font-bold color-earth">戊</td>
+                                <td class="p-2 text-slate-500">陽土</td>
+                                <td class="p-2">胃部、肋腹、皮膚、鼻面</td>
+                                <td class="p-2">胃、消化道、肌肉組織</td>
+                                <td class="p-2">主脾胃不和、消化不良、肌肉痠痛、面部</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-2 font-bold color-earth">己</td>
+                                <td class="p-2 text-slate-500">陰土</td>
+                                <td class="p-2">腹部、脾臟、肌肉、皮膚</td>
+                                <td class="p-2">脾臟、胰臟、皮下脂肪、消化吸收</td>
+                                <td class="p-2">主腹脹、食慾不振、脾虛濕困、皮膚過敏</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-2 font-bold color-metal">庚</td>
+                                <td class="p-2 text-slate-500">陽金</td>
+                                <td class="p-2">大腸、胸部、骨骼、呼吸道</td>
+                                <td class="p-2">大腸、肺經、呼吸系統</td>
+                                <td class="p-2">主咳嗽、呼吸道感染、大腸排泄、骨痛</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-2 font-bold color-metal">辛</td>
+                                <td class="p-2 text-slate-500">陰金</td>
+                                <td class="p-2">肺、牙齒、支氣管、胸腔</td>
+                                <td class="p-2">肺臟、呼吸道、牙床、淋巴</td>
+                                <td class="p-2">主氣喘、支氣管炎、牙痛、咽喉乾癢</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-2 font-bold color-water">壬</td>
+                                <td class="p-2 text-slate-500">陽水</td>
+                                <td class="p-2">膀胱、腎臟、三焦、足部</td>
+                                <td class="p-2">膀胱、泌尿系統、血液水分</td>
+                                <td class="p-2">主泌尿感染、水腫、腰痠、畏寒</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-2 font-bold color-water">癸</td>
+                                <td class="p-2 text-slate-500">陰水</td>
+                                <td class="p-2">腎臟、泌尿、足底、耳、生殖</td>
+                                <td class="p-2">腎經、內分泌、生殖系統</td>
+                                <td class="p-2">主腎虛、腰膝痠軟、內分泌失調、耳鳴</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== 五行類象對照表 (性格、職業) ==================== -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="bg-slate-800 text-white text-xs font-semibold px-4 py-2 flex justify-between items-center">
+                <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-amber-400"></span> 五行萬物類象對照表（性格、職業參考）</span>
+                <span class="text-[11px] text-slate-300">傳統命理萬物類象 (可左右滑動)</span>
+            </div>
+            <div class="p-3">
+                <div class="overflow-x-auto scrollbar-thin pb-2">
+                    <table class="w-full text-left text-xs border-collapse min-w-[500px]">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-700 border-b border-slate-200">
+                                <th class="p-2 font-semibold w-16">五行</th>
+                                <th class="p-2 font-semibold">性格特質 (性情)</th>
+                                <th class="p-2 font-semibold">適合職業 / 行業領域</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-slate-700">
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-2 font-bold color-wood">木 (Wood)</td>
+                                <td class="p-2">仁慈、正直、溫和、有同情心、重誠信與毅力；過旺則固執倔強，過弱則優柔寡斷。</td>
+                                <td class="p-2">木材、木器、家具、文具、教育、出版、林業、花卉、中醫中藥、服裝紡織、宗教。</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-2 font-bold color-fire">火 (Fire)</td>
+                                <td class="p-2">熱情、積極、光明磊落、講義氣、急躁、禮貌；過旺則急躁衝動、缺乏耐心，過弱則冷漠孤僻。</td>
+                                <td class="p-2">照明、電力、能源、餐飲酒樓、光學、文藝影視、美妝、化學、評論演說、高科技。</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-2 font-bold color-earth">土 (Earth)</td>
+                                <td class="p-2">誠實守信、穩重厚道、包容心強、言行謹慎；過旺則呆板固執、反應遲鈍，過弱則缺少主見。</td>
+                                <td class="p-2">房地產、土地開發、建築、農業、石材、陶瓷、倉儲、會計、律師、顧問、中介服務。</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-2 font-bold color-metal">金 (Metal)</td>
+                                <td class="p-2">剛毅果斷、重義氣、審美力強、辦事俐落；過旺則好勇鬥狠、刻薄寡恩，過弱則優柔寡斷、無魄力。</td>
+                                <td class="p-2">金融證券、珠寶首飾、鋼鐵五金、機械製造、法律、軍警、武術、外科醫生、精密儀器。</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50">
+                                <td class="p-2 font-bold color-water">水 (Water)</td>
+                                <td class="p-2">聰明好學、應变力強、心思細密、富謀略；過旺則反覆無常、流於心機，過弱則膽小保守、缺乏遠見。</td>
+                                <td class="p-2">水利航運、水產物流、對外貿易、大眾傳媒、餐飲流動、會計、旅遊、資訊傳播、顧問。</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        </div><!-- end tab-chart -->
+
+        <!-- ==================== TAB 2: 流日記錄 ==================== -->
+        <div id="tab-diary" class="tab-content">
+            
+            <!-- 今日記錄表單 -->
+            <div class="bg-white rounded-xl border border-indigo-200 shadow-sm overflow-hidden mb-4">
+                <div class="bg-indigo-700 text-white text-xs font-semibold px-3 sm:px-4 py-2.5 flex justify-between items-center flex-wrap gap-1">
+                    <span class="flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-indigo-300"></span> 流日心情記錄
+                    </span>
+                    <span id="diary-date-label" class="text-[11px] text-indigo-200 font-medium"></span>
+                </div>
+
+                <div class="p-3 sm:p-4 space-y-4">
+                    <!-- 當日干支詳細（與排盤同風格：十神、十二長生、藏干、神煞） -->
+                    <div class="bg-slate-50 rounded-lg p-2 sm:p-3 border border-slate-200 overflow-hidden">
+                        <div class="text-[11px] font-bold text-slate-600 mb-2 flex justify-between items-center flex-wrap gap-1">
+                            <span>當日對應四柱（自動帶入排盤設定）</span>
+                            <span id="diary-natal-summary" class="font-medium text-slate-500 text-[10px]">--</span>
+                        </div>
+
+                        <!-- 標題列 -->
+                        <div class="grid grid-cols-4 gap-1 text-center text-[10px] font-semibold mb-1">
+                            <div class="bg-rose-100 text-rose-800 rounded-t-lg py-1 border border-rose-200" id="diary-header-day">流日</div>
+                            <div class="bg-purple-100 text-purple-800 rounded-t-lg py-1 border border-purple-200" id="diary-header-month">流月</div>
+                            <div class="bg-emerald-100 text-emerald-800 rounded-t-lg py-1 border border-emerald-200" id="diary-header-year">流年</div>
+                            <div class="bg-sky-100 text-sky-800 rounded-t-lg py-1 border border-sky-200" id="diary-header-luck">大運</div>
+                        </div>
+
+                        <!-- 天干列 -->
+                        <div class="grid grid-cols-4 gap-1 mb-1 min-h-[60px]">
+                            <div class="flex justify-center items-center bg-rose-50/50 border border-rose-200 rounded-lg" id="diary-stem-day"></div>
+                            <div class="flex justify-center items-center bg-purple-50/50 border border-purple-200 rounded-lg" id="diary-stem-month"></div>
+                            <div class="flex justify-center items-center bg-emerald-50/50 border border-emerald-200 rounded-lg" id="diary-stem-year"></div>
+                            <div class="flex justify-center items-center bg-sky-50/50 border border-sky-200 rounded-lg" id="diary-stem-luck"></div>
+                        </div>
+
+                        <!-- 地支列 -->
+                        <div class="grid grid-cols-4 gap-1 mb-1 min-h-[90px]">
+                            <div class="flex justify-center items-start bg-rose-50/50 border border-rose-200 rounded-lg" id="diary-branch-day"></div>
+                            <div class="flex justify-center items-start bg-purple-50/50 border border-purple-200 rounded-lg" id="diary-branch-month"></div>
+                            <div class="flex justify-center items-start bg-emerald-50/50 border border-emerald-200 rounded-lg" id="diary-branch-year"></div>
+                            <div class="flex justify-center items-start bg-sky-50/50 border border-sky-200 rounded-lg" id="diary-branch-luck"></div>
+                        </div>
+
+                        <!-- 神煞列 -->
+                        <div class="grid grid-cols-4 gap-1 min-h-[32px]">
+                            <div class="flex flex-wrap justify-center gap-0.5 p-0.5 bg-rose-50/30 border border-rose-200 rounded-lg" id="diary-shensha-day"></div>
+                            <div class="flex flex-wrap justify-center gap-0.5 p-0.5 bg-purple-50/30 border border-purple-200 rounded-lg" id="diary-shensha-month"></div>
+                            <div class="flex flex-wrap justify-center gap-0.5 p-0.5 bg-emerald-50/30 border border-emerald-200 rounded-lg" id="diary-shensha-year"></div>
+                            <div class="flex flex-wrap justify-center gap-0.5 p-0.5 bg-sky-50/30 border border-sky-200 rounded-lg" id="diary-shensha-luck"></div>
+                        </div>
+                    </div>
+
+                    <!-- 三個評分 -->
+                    <div class="space-y-3">
+                        <div>
+                            <div class="flex justify-between items-center mb-1.5">
+                                <label class="text-xs font-bold text-slate-700">自我（個人情緒／能量／身心）</label>
+                                <span id="score-self-label" class="text-[11px] text-slate-400">未評分</span>
+                            </div>
+                            <div class="flex gap-2 justify-center sm:justify-start" id="rating-self">
+                                <button type="button" class="rating-btn" data-score="1">1</button>
+                                <button type="button" class="rating-btn" data-score="2">2</button>
+                                <button type="button" class="rating-btn" data-score="3">3</button>
+                                <button type="button" class="rating-btn" data-score="4">4</button>
+                                <button type="button" class="rating-btn" data-score="5">5</button>
+                            </div>
+                            <div class="flex justify-between text-[10px] text-slate-400 mt-1 px-1">
+                                <span>很差／受壓</span><span>普通</span><span>很好／順暢</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between items-center mb-1.5">
+                                <label class="text-xs font-bold text-slate-700">家庭（家人／感情關係）</label>
+                                <span id="score-family-label" class="text-[11px] text-slate-400">未評分</span>
+                            </div>
+                            <div class="flex gap-2 justify-center sm:justify-start" id="rating-family">
+                                <button type="button" class="rating-btn" data-score="1">1</button>
+                                <button type="button" class="rating-btn" data-score="2">2</button>
+                                <button type="button" class="rating-btn" data-score="3">3</button>
+                                <button type="button" class="rating-btn" data-score="4">4</button>
+                                <button type="button" class="rating-btn" data-score="5">5</button>
+                            </div>
+                            <div class="flex justify-between text-[10px] text-slate-400 mt-1 px-1">
+                                <span>很差／受壓</span><span>普通</span><span>很好／順暢</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between items-center mb-1.5">
+                                <label class="text-xs font-bold text-slate-700">工作（事業／學習／壓力）</label>
+                                <span id="score-work-label" class="text-[11px] text-slate-400">未評分</span>
+                            </div>
+                            <div class="flex gap-2 justify-center sm:justify-start" id="rating-work">
+                                <button type="button" class="rating-btn" data-score="1">1</button>
+                                <button type="button" class="rating-btn" data-score="2">2</button>
+                                <button type="button" class="rating-btn" data-score="3">3</button>
+                                <button type="button" class="rating-btn" data-score="4">4</button>
+                                <button type="button" class="rating-btn" data-score="5">5</button>
+                            </div>
+                            <div class="flex justify-between text-[10px] text-slate-400 mt-1 px-1">
+                                <span>很差／受壓</span><span>普通</span><span>很好／順暢</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 備註 -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">備註（可選）</label>
+                        <textarea id="diary-note" rows="2" placeholder="例如：今日開會順利、同家人相處愉快..." class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs text-slate-900 focus:outline-none focus:border-indigo-500 resize-none"></textarea>
+                    </div>
+
+                    <!-- 儲存按鈕 -->
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <button id="save-diary-btn" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold py-2.5 rounded-lg transition shadow-sm">
+                            儲存今日記錄
+                        </button>
+                        <button id="clear-diary-form-btn" class="sm:w-24 bg-slate-100 hover:bg-slate-200 text-slate-600 text-sm font-medium py-2.5 rounded-lg transition">
+                            清除
+                        </button>
+                    </div>
+                    <p id="diary-save-msg" class="text-[11px] text-center hidden"></p>
+                </div>
+            </div>
+
+            <!-- 匯出／匯入 -->
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-3 sm:p-4 mb-4">
+                <div class="text-xs font-bold text-slate-700 mb-2 flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-slate-500"></span> 資料備份與還原
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <button id="export-diary-csv-btn" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-4 py-2 rounded-lg transition">
+                        匯出分析用 CSV
+                    </button>
+                    <button id="export-diary-json-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2 rounded-lg transition">
+                        完整備份 JSON
+                    </button>
+                    <label class="bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold px-4 py-2 rounded-lg transition cursor-pointer">
+                        匯入記錄 (JSON)
+                        <input type="file" id="import-diary-input" accept=".json,application/json" class="hidden">
+                    </label>
+                    <button id="clear-all-diary-btn" class="bg-rose-100 hover:bg-rose-200 text-rose-700 text-xs font-medium px-4 py-2 rounded-lg transition">
+                        清空所有記錄
+                    </button>
+                </div>
+                <p class="text-[10px] text-slate-400 mt-2">
+                    <b>CSV</b>：用嚟 Excel／Google Sheet 分析（含十神、五行）。<br>
+                    <b>JSON</b>：完整備份，之後可用「匯入」還原。資料只存在本機，請定期備份。
+                </p>
+            </div>
+
+            <!-- 歷史記錄列表 -->
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="bg-slate-700 text-white text-xs font-semibold px-3 sm:px-4 py-2.5 flex justify-between items-center">
+                    <span class="flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-slate-300"></span> 歷史記錄
+                    </span>
+                    <span id="diary-count-label" class="text-[11px] text-slate-300">共 0 筆</span>
+                </div>
+                <div id="diary-history-list" class="divide-y divide-slate-100 max-h-[480px] overflow-y-auto">
+                    <!-- JS 動態填入 -->
+                </div>
+                <div id="diary-empty-msg" class="p-6 text-center text-sm text-slate-400">
+                    尚無任何記錄，開始記錄第一天吧！
+                </div>
+            </div>
+
+        </div><!-- end tab-diary -->
+
+    </main>
+
+    <footer class="text-center py-3 text-xs text-slate-400 border-t border-slate-200 mt-2">
+        干支八字雙盤對比專業排盤器 &copy; 2026
+    </footer>
+
+    <script>
+        const elementColorClasses = {
+            '木': 'color-wood',
+            '火': 'color-fire',
+            '土': 'color-earth',
+            '金': 'color-metal',
+            '水': 'color-water'
+        };
+
+        const stemElement = {
+            '甲': '木', '乙': '木',
+            '丙': '火', '丁': '火',
+            '戊': '土', '己': '土',
+            '庚': '金', '辛': '金',
+            '壬': '水', '癸': '水'
+        };
+
+        const branchElement = {
+            '子': '水', '丑': '土', '寅': '木', '卯': '木',
+            '辰': '土', '巳': '火', '午': '火', '未': '土',
+            '申': '金', '酉': '金', '戌': '土', '亥': '水'
+        };
+
+        const tenGodMap = {
+            '甲': { '甲': '比', '乙': '劫', '丙': '食', '丁': '傷', '戊': '才', '己': '財', '庚': '殺', '辛': '官', '壬': '梟', '癸': '印' },
+            '乙': { '甲': '劫', '乙': '比', '丙': '傷', '丁': '食', '戊': '財', '己': '才', '庚': '官', '辛': '殺', '壬': '印', '癸': '梟' },
+            '丙': { '甲': '梟', '乙': '印', '丙': '比', '丁': '劫', '戊': '食', '己': '傷', '庚': '才', '辛': '財', '壬': '殺', '癸': '官' },
+            '丁': { '甲': '印', '乙': '梟', '丙': '劫', '丁': '比', '戊': '傷', '己': '食', '庚': '財', '辛': '才', '壬': '官', '癸': '殺' },
+            '戊': { '甲': '殺', '乙': '官', '丙': '梟', '丁': '印', '戊': '比', '己': '劫', '庚': '食', '辛': '傷', '壬': '才', '癸': '財' },
+            '己': { '甲': '官', '乙': '殺', '丙': '印', '丁': '梟', '戊': '劫', '己': '比', '庚': '傷', '辛': '食', '壬': '財', '癸': '才' },
+            '庚': { '甲': '才', '乙': '財', '丙': '殺', '丁': '官', '戊': '梟', '己': '印', '庚': '比', '辛': '劫', '壬': '食', '癸': '傷' },
+            '辛': { '甲': '財', '乙': '才', '丙': '官', '丁': '殺', '戊': '印', '己': '梟', '庚': '劫', '辛': '比', '壬': '傷', '癸': '食' },
+            '壬': { '甲': '食', '乙': '傷', '丙': '才', '丁': '財', '戊': '殺', '己': '官', '庚': '梟', '辛': '印', '壬': '比', '癸': '劫' },
+            '癸': { '甲': '傷', '乙': '食', '丙': '財', '丁': '才', '戊': '官', '己': '殺', '庚': '印', '辛': '梟', '壬': '劫', '癸': '比' }
+        };
+
+        const hiddenStemsData = {
+            '子': ['癸'],
+            '丑': ['己', '癸', '辛'],
+            '寅': ['甲', '丙', '戊'],
+            '卯': ['乙'],
+            '辰': ['戊', '乙', '癸'],
+            '巳': ['丙', '戊', '庚'],
+            '午': ['丁', '己'],
+            '未': ['己', '丁', '乙'],
+            '申': ['庚', '壬', '戊'],
+            '酉': ['辛'],
+            '戌': ['戊', '辛', '丁'],
+            '亥': ['壬', '甲']
+        };
+
+        const hiddenStemsWeights = {
+            '子': { '癸': 1.0 },
+            '丑': { '己': 0.6, '癸': 0.3, '辛': 0.1 },
+            '寅': { '甲': 0.6, '丙': 0.3, '戊': 0.1 },
+            '卯': { '乙': 1.0 },
+            '辰': { '戊': 0.6, '乙': 0.3, '癸': 0.1 },
+            '巳': { '丙': 0.6, '戊': 0.3, '庚': 0.1 },
+            '午': { '丁': 0.7, '己': 0.3 },
+            '未': { '己': 0.6, '丁': 0.3, '乙': 0.1 },
+            '申': { '庚': 0.6, '壬': 0.3, '戊': 0.1 },
+            '酉': { '辛': 1.0 },
+            '戌': { '戊': 0.6, '辛': 0.3, '丁': 0.1 },
+            '亥': { '壬': 0.7, '甲': 0.3 }
+        };
+
+        const twelveLifeStages = {
+            '甲': { '寅': '臨官', '卯': '帝旺', '辰': '衰', '巳': '病', '午': '死', '未': '墓', '申': '絕', '酉': '胎', '戌': '養', '亥': '長生', '子': '沐浴', '丑': '冠帶' },
+            '乙': { '寅': '沐浴', '卯': '長生', '辰': '養', '巳': '胎', '午': '絕', '未': '墓', '申': '死', '酉': '病', '戌': '衰', '亥': '帝旺', '子': '臨官', '丑': '冠帶' },
+            '丙': { '寅': '長生', '卯': '沐浴', '辰': '冠帶', '巳': '臨官', '午': '帝旺', '未': '衰', '申': '病', '酉': '死', '戌': '墓', '亥': '絕', '子': '胎', '丑': '養' },
+            '丁': { '寅': '養', '卯': '病', '辰': '衰', '巳': '帝旺', '午': '臨官', '未': '冠帶', '申': '沐浴', '酉': '長生', '戌': '養', '亥': '胎', '子': '絕', '丑': '墓' },
+            '戊': { '寅': '長生', '卯': '沐浴', '辰': '冠帶', '巳': '臨官', '午': '帝旺', '未': '衰', '申': '病', '酉': '死', '戌': '墓', '亥': '絕', '子': '胎', '丑': '養' },
+            '己': { '寅': '養', '卯': '病', '辰': '衰', '巳': '帝旺', '午': '臨官', '未': '冠帶', '申': '沐浴', '酉': '長生', '戌': '養', '亥': '胎', '子': '絕', '丑': '墓' },
+            '庚': { '寅': '絕', '卯': '胎', '辰': '養', '巳': '長生', '午': '沐浴', '未': '冠帶', '申': '臨官', '酉': '帝旺', '戌': '衰', '亥': '病', '子': '死', '丑': '墓' },
+            '辛': { '寅': '胎', '卯': '絕', '辰': '墓', '巳': '死', '午': '病', '未': '衰', '申': '帝旺', '酉': '臨官', '戌': '冠帶', '亥': '沐浴', '子': '長生', '丑': '養' },
+            '壬': { '寅': '病', '卯': '死', '辰': '墓', '巳': '絕', '午': '胎', '未': '養', '申': '長生', '酉': '沐浴', '戌': '冠帶', '亥': '臨官', '子': '帝旺', '丑': '衰' },
+            '癸': { '寅': '死', '卯': '病', '辰': '衰', '巳': '帝旺', '午': '臨官', '未': '冠帶', '申': '沐浴', '酉': '長生', '戌': '養', '亥': '帝旺', '子': '臨官', '丑': '冠帶' }
+        };
+
+        const xunKongMap = {
+            '甲子': ['戌', '亥'], '乙丑': ['戌', '亥'], '丙寅': ['戌', '亥'], '丁卯': ['戌', '亥'], '戊辰': ['戌', '亥'], '己巳': ['戌', '亥'], '庚午': ['戌', '亥'], '辛未': ['戌', '亥'], '壬申': ['戌', '亥'], '癸酉': ['戌', '亥'],
+            '甲戌': ['申', '酉'], '乙亥': ['申', '酉'], '丙子': ['申', '酉'], '丁丑': ['申', '酉'], '戊寅': ['申', '酉'], '己卯': ['申', '酉'], '庚辰': ['申', '酉'], '辛巳': ['申', '酉'], '壬午': ['申', '酉'], '癸未': ['申', '酉'],
+            '甲申': ['午', '未'], '乙酉': ['午', '未'], '丙戌': ['午', '未'], '丁亥': ['午', '未'], '戊子': ['午', '未'], '己丑': ['午', '未'], '庚寅': ['午', '未'], '辛卯': ['午', '未'], '壬辰': ['午', '未'], '癸巳': ['午', '未'],
+            '甲午': ['辰', '巳'], '乙未': ['辰', '巳'], '丙申': ['辰', '巳'], '丁酉': ['辰', '巳'], '戊戌': ['辰', '巳'], '己亥': ['辰', '巳'], '庚子': ['辰', '巳'], '辛丑': ['辰', '巳'], '壬寅': ['辰', '巳'], '癸卯': ['辰', '巳'],
+            '甲辰': ['寅', '卯'], '乙巳': ['寅', '卯'], '丙午': ['寅', '卯'], '丁未': ['寅', '卯'], '戊申': ['寅', '卯'], '己酉': ['寅', '卯'], '庚戌': ['寅', '卯'], '辛亥': ['寅', '卯'], '壬子': ['寅', '卯'], '癸丑': ['寅', '卯'],
+            '甲寅': ['子', '丑'], '乙卯': ['子', '丑'], '丙辰': ['子', '丑'], '丁巳': ['子', '丑'], '戊午': ['子', '丑'], '己未': ['子', '丑'], '庚申': ['子', '丑'], '辛酉': ['子', '丑'], '壬戌': ['子', '丑'], '癸亥': ['子', '丑']
+        };
+
+        const stems = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
+        const branches = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
+        
+        const lunarInfo = [
+            0x04bd8,0x04ae0,0x0a570,0x054d5,0x0d260,0x0d950,0x16554,0x056a0,0x09ad0,0x055d2,
+            0x04ae0,0x0a5b6,0x0a4d0,0x0d250,0x1d255,0x0b540,0x0d6a0,0x0ada2,0x095b0,0x14977,
+            0x04970,0x0a4b0,0x0b4b5,0x06a50,0x06d40,0x1ab54,0x02b60,0x09570,0x052f2,0x04970,
+            0x06566,0x0d4a0,0x0ea50,0x06e95,0x05ad0,0x02b60,0x186e3,0x092e0,0x1c8d7,0x0c950,
+            0x0d4a0,0x1d8a6,0x0b550,0x056a0,0x1a5b4,0x025d0,0x092d0,0x0d2b2,0x0a950,0x0b557,
+            0x06ca0,0x0b550,0x15355,0x04da0,0x0a5d0,0x14573,0x052d0,0x0a9a8,0x0e950,0x06aa0,
+            0x0aea6,0x0ab50,0x04b60,0x0aae4,0x0a570,0x05260,0x0f263,0x0d950,0x05b57,0x056a0,
+            0x096d0,0x04dd5,0x04ad0,0x0a4d0,0x0d4d4,0x0d250,0x0d558,0x0b540,0x0b6a0,0x195a6,
+            0x095b0,0x049b0,0x0a974,0x0a4b0,0x0b27a,0x06a50,0x06d40,0x0af46,0x0ab60,0x09570,
+            0x04af5,0x04970,0x064b0,0x074a3,0x0ea50,0x06b58,0x055c0,0x0ab60,0x096d5,0x092e0,
+            0x0c960,0x0d954,0x0d4a0,0x0da50,0x07552,0x056a0,0x0abb7,0x025d0,0x092d0,0x0cab5,
+            0x0a950,0x0b4a0,0x0baa4,0x0ad50,0x055d9,0x04ba0,0x0a5b0,0x15176,0x052b0,0x0a930,
+            0x07954,0x06aa0,0x0ad50,0x05b52,0x04b60,0x0a6e6,0x0a4e0,0x0d260,0x0ea65,0x0d530,
+            0x05aa0,0x076a3,0x096d0,0x04bd8,0x04ad0,0x0a4d0,0x1d0b6,0x0d250,0x0d520,0x0dd45,
+            0x0b5a0,0x056d0,0x055b2,0x049b0,0x0a577,0x0a4b0,0x0aa50,0x1b255,0x06d20,0x0ada0
+        ];
+
+        function getLunarYearDays(y) {
+            let i, sum = 348;
+            for (i = 0x8000; i > 0x8; i >>= 1) {
+                sum += (lunarInfo[y - 1900] & i) ? 1 : 0;
+            }
+            return sum + getLunarLeapDays(y);
+        }
+
+        function getLunarLeapDays(y) {
+            if (getLunarLeapMonth(y)) {
+                return (lunarInfo[y - 1900] & 0x10000) ? 30 : 29;
+            }
+            return 0;
+        }
+
+        function getLunarLeapMonth(y) {
+            return lunarInfo[y - 1900] & 0xf;
+        }
+
+        function getLunarMonthDays(y, m) {
+            return (lunarInfo[y - 1900] & (0x10000 >> m)) ? 30 : 29;
+        }
+
+        function solarToLunar(y, m, d) {
+            let baseDate = new Date(1900, 0, 31);
+            let objDate = new Date(y, m - 1, d);
+            let offset = Math.floor((objDate - baseDate) / 86400000);
+
+            let leapMonth = 0;
+            let iYear, days = 0;
+            for (iYear = 1900; iYear < 2100 && offset >= 0; iYear++) {
+                days = getLunarYearDays(iYear);
+                if (offset < days) break;
+                offset -= days;
+            }
+
+            let year = iYear;
+            let isLeap = false;
+            let leap = getLunarLeapMonth(year);
+
+            let iMonth;
+            for (iMonth = 1; iMonth < 13 && offset >= 0; iMonth++) {
+                if (leap > 0 && iMonth === (leap + 1) && !isLeap) {
+                    --iMonth;
+                    isLeap = true;
+                    days = getLunarLeapDays(year);
+                } else {
+                    days = getLunarMonthDays(year, iMonth);
+                }
+                if (isLeap && iMonth === (leap + 1)) isLeap = false;
+                if (offset < days) break;
+                offset -= days;
+            }
+
+            let month = iMonth;
+            let day = offset + 1;
+
+            const lunarMonthNames = ['正', '二', '三', '四', '五', '六', '七', '八', '九', '十', '冬', '臘'];
+            const lunarNumNames = ['初一', '初二', '初三', '初四', '初五', '初六', '初七', '初八', '初九', '初十', '十一', '十二', '十三', '十四', '十五', '十六', '十七', '十八', '十九', '二十', '廿一', '廿二', '廿三', '廿四', '廿五', '廿六', '廿七', '廿八', '廿九', '三十'];
+
+            return {
+                lunarYear: year,
+                monthStr: (isLeap ? '閏' : '') + lunarMonthNames[(month - 1) % 12] + '月',
+                dayStr: lunarNumNames[(day - 1) % 30] || '初一'
+            };
+        }
+
+        const TWELVE_SOLAR_TERMS = [
+            {m: 1, d: 6, branch: '丑', name: '小寒'},
+            {m: 2, d: 4, branch: '寅', name: '立春'},
+            {m: 3, d: 6, branch: '卯', name: '驚蟄'},
+            {m: 4, d: 5, branch: '辰', name: '清明'},
+            {m: 5, d: 5, branch: '巳', name: '立夏'},
+            {m: 6, d: 6, branch: '午', name: '芒種'},
+            {m: 7, d: 7, branch: '未', name: '小暑'},
+            {m: 8, d: 8, branch: '申', name: '立秋'},
+            {m: 9, d: 8, branch: '酉', name: '白露'},
+            {m: 10, d: 8, branch: '戌', name: '寒露'},
+            {m: 11, d: 7, branch: '亥', name: '立冬'},
+            {m: 12, d: 7, branch: '子', name: '大雪'}
+        ];
+
+        function getSolarTermMonthBranch(year, month, day) {
+            let targetBranch = '丑';
+            let baziYear = year;
+            const currentMD = month * 100 + day;
+
+            if (month < 2 || (month === 2 && day < 4)) {
+                baziYear = year - 1;
+                targetBranch = '丑';
+            } else {
+                for (let i = TWELVE_SOLAR_TERMS.length - 1; i >= 0; i--) {
+                    const t = TWELVE_SOLAR_TERMS[i];
+                    if (currentMD >= (t.m * 100 + t.d)) {
+                        targetBranch = t.branch;
+                        break;
+                    }
+                }
+                if (month === 1 && day < 6) {
+                    baziYear = year - 1;
+                    targetBranch = '丑';
+                }
+            }
+
+            return { baziYear, monthBranch: targetBranch };
+        }
+
+        function getClosestSolarTerms(year, month, day, hour, forward) {
+            const birthDate = new Date(year, month - 1, day, hour);
+            
+            let terms = [];
+            for (let y = year - 1; y <= year + 1; y++) {
+                for (let t of TWELVE_SOLAR_TERMS) {
+                    terms.push({
+                        date: new Date(y, t.m - 1, t.d, 0, 0, 0),
+                        branch: t.branch,
+                        name: t.name
+                    });
+                }
+            }
+            terms.sort((a, b) => a.date - b.date);
+
+            if (forward) {
+                for (let t of terms) {
+                    if (t.date > birthDate) {
+                        return { termDate: t.date, termName: t.name };
+                    }
+                }
+                return { termDate: new Date(year + 1, 1, 4), termName: '立春' };
+            } else {
+                let prev = terms[0];
+                for (let t of terms) {
+                    if (t.date <= birthDate) {
+                        prev = t;
+                    } else {
+                        break;
+                    }
+                }
+                return { termDate: prev.date, termName: prev.name };
+            }
+        }
+
+        function calculateLuckStartAge(birthYear, birthMonth, birthDay, birthHour, forward) {
+            const birthDate = new Date(birthYear, birthMonth - 1, birthDay, birthHour);
+            const { termDate } = getClosestSolarTerms(birthYear, birthMonth, birthDay, birthHour, forward);
+
+            let diffMs = Math.abs(termDate - birthDate);
+            let diffHours = diffMs / (1000 * 60 * 60);
+            
+            let totalMonths = diffHours / 6.0;
+            
+            let startYears = Math.floor(totalMonths / 12);
+            let startMonths = Math.round(totalMonths % 12);
+
+            if (startMonths === 12) {
+                startYears += 1;
+                startMonths = 0;
+            }
+
+            if (startYears < 0) startYears = 0;
+
+            const startYear = birthYear + startYears;
+
+            return {
+                years: startYears,
+                months: startMonths,
+                startYear: startYear,
+                displayStr: `${startYears}年${startMonths > 0 ? startMonths + '個月' : ''}起運 (${startYear}年起運)`
+            };
+        }
+
+        function calculateShenSha(dayStem, dayBranch, targetGZ) {
+            const stars = [];
+            const tBranch = targetGZ[1];
+
+            const dayGZ = dayStem + dayBranch;
+            const kongWangList = xunKongMap[dayGZ] || [];
+            if (kongWangList.includes(tBranch)) {
+                stars.push({ name: '空亡', color: 'border-slate-400 text-slate-500 bg-slate-100 font-bold' });
+            }
+
+            const tianYiMap = {
+                '甲': ['丑', '未'], '戊': ['丑', '未'], '庚': ['丑', '未'],
+                '乙': ['子', '申'], '己': ['子', '申'],
+                '丙': ['亥', '酉'], '丁': ['亥', '酉'],
+                '壬': ['巳', '卯'], '癸': ['巳', '卯'],
+                '辛': ['午', '寅']
+            };
+            if (tianYiMap[dayStem] && tianYiMap[dayStem].includes(tBranch)) {
+                stars.push({ name: '天乙貴人', color: 'border-amber-400 text-amber-700 bg-amber-50' });
+            }
+
+            const wenChangMap = { '甲': '巳', '乙': '午', '丙': '申', '丁': '酉', '戊': '申', '己': '酉', '庚': '亥', '辛': '子', '壬': '寅', '癸': '卯' };
+            if (wenChangMap[dayStem] === tBranch) {
+                stars.push({ name: '文昌貴人', color: 'border-emerald-400 text-emerald-700 bg-emerald-50' });
+            }
+
+            const taoHuaMap = { '子': '酉', '丑': '午', '寅': '卯', '卯': '子', '辰': '酉', '巳': '午', '午': '卯', '未': '子', '申': '酉', '戌': '午', '亥': '子' };
+            if (taoHuaMap[dayBranch] === tBranch) {
+                stars.push({ name: '桃花', color: 'border-rose-400 text-rose-700 bg-rose-50' });
+            }
+
+            const yiMaMap = { '申': '寅', '子': '寅', '辰': '寅', '寅': '申', '午': '申', '戌': '申', '巳': '亥', '酉': '亥', '丑': '亥', '亥': '巳', '卯': '巳', '未': '巳' };
+            if (yiMaMap[dayBranch] === tBranch) {
+                stars.push({ name: '驛馬', color: 'border-sky-400 text-sky-700 bg-sky-50' });
+            }
+
+            const yangRenMap = { '甲': '卯', '乙': '辰', '丙': '午', '丁': '未', '戊': '午', '己': '未', '庚': '酉', '辛': '戌', '壬': '子', '癸': '丑' };
+            if (yangRenMap[dayStem] === tBranch) {
+                stars.push({ name: '羊刃', color: 'border-red-400 text-red-700 bg-red-50' });
+            }
+
+            const huaGaiMap = { '申': '辰', '子': '辰', '辰': '辰', '寅': '戌', '午': '戌', '戌': '戌', '巳': '丑', '酉': '丑', '丑': '丑', '亥': '未', '卯': '未', '未': '未' };
+            if (huaGaiMap[dayBranch] === tBranch) {
+                stars.push({ name: '華蓋', color: 'border-purple-400 text-purple-700 bg-purple-50' });
+            }
+
+            return stars;
+        }
+
+        function getExactDayGanZhi(year, month, day, hour = 12) {
+            let targetDate = new Date(year, month - 1, day, hour);
+            if (hour >= 23) {
+                targetDate.setDate(targetDate.getDate() + 1);
+            }
+
+            let y = targetDate.getFullYear();
+            let m = targetDate.getMonth() + 1;
+            let d = targetDate.getDate();
+
+            if (m <= 2) {
+                y -= 1;
+                m += 12;
+            }
+
+            let A = Math.floor(y / 100);
+            let B = 2 - A + Math.floor(A / 4);
+            let JD = Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) + d + B - 1524.5;
+
+            let gzIdx = Math.floor(JD + 0.5 + 49) % 60;
+            if (gzIdx < 0) gzIdx += 60;
+
+            let stemIdx = gzIdx % 10;
+            let branchIdx = gzIdx % 12;
+
+            return stems[stemIdx] + branches[branchIdx];
+        }
+
+        function getCorrectBaziPillars(year, month, day, hour) {
+            const dayGZ = getExactDayGanZhi(year, month, day, hour);
+            const dayStem = dayGZ[0];
+
+            const termInfo = getSolarTermMonthBranch(year, month, day);
+            const baziYear = termInfo.baziYear;
+            const monthBranch = termInfo.monthBranch;
+
+            const yearStemIdx = (baziYear - 4) % 10 < 0 ? ((baziYear - 4) % 10 + 10) : (baziYear - 4) % 10;
+            const yearBranchIdx = (baziYear - 4) % 12 < 0 ? ((baziYear - 4) % 12 + 12) : (baziYear - 4) % 12;
+            const yearGZ = stems[yearStemIdx] + branches[yearBranchIdx];
+
+            const yearStem = yearGZ[0];
+            let startMonthStemIdx = 2; 
+            if (yearStem === '乙' || yearStem === '庚') startMonthStemIdx = 4;
+            else if (yearStem === '丙' || yearStem === '辛') startMonthStemIdx = 6;
+            else if (yearStem === '丁' || yearStem === '壬') startMonthStemIdx = 8;
+            else if (yearStem === '戊' || yearStem === '癸') startMonthStemIdx = 0;
+
+            let mBranchOffset = (branches.indexOf(monthBranch) - 2 + 12) % 12;
+            let monthStem = stems[(startMonthStemIdx + mBranchOffset) % 10];
+            const monthGZ = monthStem + monthBranch;
+
+            let hourBranchIdx = Math.floor((hour + 1) / 2) % 12;
+            let hourBranch = branches[hourBranchIdx];
+
+            let startHourStemIdx = 0;
+            if (dayStem === '乙' || dayStem === '庚') startHourStemIdx = 2;
+            else if (dayStem === '丙' || dayStem === '辛') startHourStemIdx = 4;
+            else if (dayStem === '丁' || dayStem === '壬') startHourStemIdx = 6;
+            else if (dayStem === '戊' || dayStem === '癸') startHourStemIdx = 8;
+
+            let hourStem = stems[(startHourStemIdx + hourBranchIdx) % 10];
+            const hourGZ = hourStem + hourBranch;
+
+            return { yearGZ, monthGZ, dayGZ, hourGZ };
+        }
+
+        function renderStemBox(containerId, stem, dayStem, isDayMaster = false, gender = '男') {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            const elem = stemElement[stem];
+            const colorClass = elementColorClasses[elem] || 'text-slate-800';
+            const tGod = isDayMaster ? (gender === '女' ? '坤造' : '乾造') : (tenGodMap[dayStem] ? tenGodMap[dayStem][stem] || '' : '');
+            
+            container.innerHTML = `
+                <div class="flex flex-col items-center justify-center p-1 w-full text-center">
+                    <span class="text-[10px] text-slate-500 font-medium mb-0.5">${tGod}</span>
+                    <span class="text-2xl sm:text-3xl font-black ${colorClass} leading-tight">${stem}</span>
+                </div>
+            `;
+        }
+
+        function renderBranchBoxWithStage(containerId, branch, dayStem, dayBranch = '') {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            const elem = branchElement[branch];
+            const colorClass = elementColorClasses[elem] || 'text-slate-800';
+            const hiddenStems = hiddenStemsData[branch] || [];
+            const stage = (twelveLifeStages[dayStem] && twelveLifeStages[dayStem][branch]) ? twelveLifeStages[dayStem][branch] : '';
+
+            let isKongWang = false;
+            if (dayBranch) {
+                const dayGZ = dayStem + dayBranch;
+                const kwList = xunKongMap[dayGZ] || [];
+                if (kwList.includes(branch)) {
+                    isKongWang = true;
+                }
+            }
+
+            const hiddenHtml = hiddenStems.map(s => {
+                const sElem = stemElement[s];
+                const sColor = elementColorClasses[sElem] || 'text-slate-700';
+                const tGod = tenGodMap[dayStem] ? tenGodMap[dayStem][s] || '' : '';
+                return `<span class="inline-flex items-center gap-0.5 text-[9px] px-1 bg-white/80 rounded border border-slate-200 my-0.5"><span class="${sColor} font-bold">${s}</span><span class="text-slate-400">(${tGod})</span></span>`;
+            }).join('');
+
+            container.innerHTML = `
+                <div class="flex flex-col items-center justify-start p-1 w-full pt-1.5">
+                    <div class="flex items-center justify-center gap-1 mb-0.5 h-4 flex-wrap">
+                        <span class="text-[9px] bg-slate-100 text-slate-600 px-1 rounded font-medium">${stage}</span>
+                        ${isKongWang ? '<span class="text-[9px] bg-slate-200 text-slate-700 px-1 rounded font-bold border border-slate-300">空亡</span>' : ''}
+                    </div>
+                    <span class="text-xl sm:text-2xl font-black ${colorClass} leading-none my-1">${branch}</span>
+                    <div class="flex flex-wrap justify-center gap-0.5 mt-0.5">${hiddenHtml}</div>
+                </div>
+            `;
+        }
+
+        function renderShenSha(containerId, dayStem, dayBranch, targetGZ) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            const stars = calculateShenSha(dayStem, dayBranch, targetGZ);
+            container.innerHTML = stars.map(star => `
+                <span class="text-[9px] px-1.5 py-0.5 rounded border font-medium ${star.color}">${star.name}</span>
+            `).join('');
+        }
+
+        let activeLuckPillar = null;
+        let selectedYear = new Date().getFullYear();
+        let selectedMonth = new Date().getMonth() + 1;
+        let selectedDay = new Date().getDate();
+
+        function initSelectors() {
+            const natalYearSelect = document.getElementById('natal-select-year');
+            const natalMonthSelect = document.getElementById('natal-select-month');
+            const natalDaySelect = document.getElementById('natal-select-day');
+            const natalHourSelect = document.getElementById('natal-select-hour');
+
+            const activeYearSelect = document.getElementById('active-year-select');
+            const activeMonthSelect = document.getElementById('active-month-select');
+            const activeDaySelect = document.getElementById('active-day-select');
+
+            [natalYearSelect, natalMonthSelect, natalDaySelect, natalHourSelect, activeYearSelect, activeMonthSelect, activeDaySelect].forEach(s => {
+                if (s) s.innerHTML = '';
+            });
+
+            for (let y = 1900; y <= 2050; y++) {
+                natalYearSelect.add(new Option(y + ' 年', y));
+                activeYearSelect.add(new Option(y + ' 年', y));
+            }
+
+            for (let m = 1; m <= 12; m++) {
+                natalMonthSelect.add(new Option(m + ' 月', m));
+                activeMonthSelect.add(new Option(m + ' 月', m));
+            }
+
+            for (let d = 1; d <= 31; d++) {
+                natalDaySelect.add(new Option(d + ' 日', d));
+                activeDaySelect.add(new Option(d + ' 日', d));
+            }
+
+            for (let h = 0; h < 24; h++) {
+                const label = `${h.toString().padStart(2, '0')} 點 (${getHourName(h)})`;
+                natalHourSelect.add(new Option(label, h));
+            }
+
+            const now = new Date();
+            natalYearSelect.value = 1990;
+            natalMonthSelect.value = 6;
+            natalDaySelect.value = 15;
+            natalHourSelect.value = 12;
+
+            activeYearSelect.value = now.getFullYear();
+            activeMonthSelect.value = now.getMonth() + 1;
+            activeDaySelect.value = now.getDate();
+
+            selectedYear = now.getFullYear();
+            selectedMonth = now.getMonth() + 1;
+            selectedDay = now.getDate();
+
+            activeYearSelect.addEventListener('change', (e) => {
+                selectedYear = parseInt(e.target.value);
+                updateLunarDisplay();
+            });
+            activeMonthSelect.addEventListener('change', (e) => {
+                selectedMonth = parseInt(e.target.value);
+                updateLunarDisplay();
+            });
+            activeDaySelect.addEventListener('change', (e) => {
+                selectedDay = parseInt(e.target.value);
+                updateLunarDisplay();
+            });
+
+            updateLunarDisplay();
+        }
+
+        function updateLunarDisplay() {
+            try {
+                const termInfo = getSolarTermMonthBranch(selectedYear, selectedMonth, selectedDay);
+                const lunar = solarToLunar(selectedYear, selectedMonth, selectedDay);
+                const displayEl = document.getElementById('flow-lunar-display');
+                if (displayEl) {
+                    displayEl.innerText = `節氣月支：【${termInfo.monthBranch}月】 ｜ 農曆：${lunar.lunarYear}年 ${lunar.monthStr}${lunar.dayStr}`;
+                }
+            } catch(e) {}
+        }
+
+        function getHourName(h) {
+            if (h === 23 || h === 0) return '子時';
+            if (h >= 1 && h <= 2) return '丑時';
+            if (h >= 3 && h <= 4) return '寅時';
+            if (h >= 5 && h <= 6) return '卯時';
+            if (h >= 7 && h <= 8) return '辰時';
+            if (h >= 9 && h <= 10) return '巳時';
+            if (h >= 11 && h <= 12) return '午時';
+            if (h >= 13 && h <= 14) return '未時';
+            if (h >= 15 && h <= 16) return '申時';
+            if (h >= 17 && h <= 18) return '酉時';
+            if (h >= 19 && h <= 20) return '戌時';
+            return '亥時';
+        }
+
+        function setToTodayFlow() {
+            const now = new Date();
+            document.getElementById('active-year-select').value = now.getFullYear();
+            document.getElementById('active-month-select').value = now.getMonth() + 1;
+            document.getElementById('active-day-select').value = now.getDate();
+            selectedYear = now.getFullYear();
+            selectedMonth = now.getMonth() + 1;
+            selectedDay = now.getDate();
+            updateLunarDisplay();
+            calculateNatalBazi();
+        }
+
+        function selectFlowYear(yr) {
+            document.getElementById('active-year-select').value = yr;
+            selectedYear = yr;
+            updateLunarDisplay();
+            calculateNatalBazi();
+        }
+
+        function loadSavedNatal() {
+            try {
+                const saved = localStorage.getItem('bazi_natal_data');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    document.getElementById('natal-name-input').value = data.name || '命主本人';
+                    document.getElementById('natal-gender').value = data.gender || '男';
+                    document.getElementById('natal-select-year').value = data.y || 1990;
+                    document.getElementById('natal-select-month').value = data.m || 6;
+                    document.getElementById('natal-select-day').value = data.d || 15;
+                    document.getElementById('natal-select-hour').value = data.h || 12;
+                }
+            } catch(e) {}
+        }
+
+        function loadSampleNatal() {
+            document.getElementById('natal-name-input').value = '示例命主';
+            document.getElementById('natal-gender').value = '男';
+            document.getElementById('natal-select-year').value = 1988;
+            document.getElementById('natal-select-month').value = 8;
+            document.getElementById('natal-select-day').value = 8;
+            document.getElementById('natal-select-hour').value = 10;
+            activeLuckPillar = null;
+            calculateNatalBazi();
+        }
+
+        function selectLuckPillar(gz, age, endAge, pStartYear, pEndYear) {
+            activeLuckPillar = { gz, age, endAge, pStartYear, pEndYear };
+            calculateNatalBazi();
+        }
+
+        function calculateNatalBazi() {
+            const name = document.getElementById('natal-name-input').value || '命主本人';
+            const gender = document.getElementById('natal-gender').value;
+            const y = parseInt(document.getElementById('natal-select-year').value);
+            const m = parseInt(document.getElementById('natal-select-month').value);
+            const d = parseInt(document.getElementById('natal-select-day').value);
+            const h = parseInt(document.getElementById('natal-select-hour').value);
+
+            try {
+                localStorage.setItem('bazi_natal_data', JSON.stringify({ name, gender, y, m, d, h }));
+            } catch(e) {}
+
+            const termInfo = getSolarTermMonthBranch(y, m, d);
+            const lunar = solarToLunar(y, m, d);
+            document.getElementById('natal-name-label').innerText = `${name} (${gender})`;
+            document.getElementById('natal-lunar-label').innerText = `節氣月：${termInfo.monthBranch}月 ｜ 農曆：${lunar.lunarYear}年 ${lunar.monthStr}${lunar.dayStr}`;
+
+            const pillars = getCorrectBaziPillars(y, m, d, h);
+            const dayStem = pillars.dayGZ[0];
+            const dayBranch = pillars.dayGZ[1];
+
+            renderStemBox('natal-stem-hour-container', pillars.hourGZ[0], dayStem, false, gender);
+            renderStemBox('natal-stem-day-container', pillars.dayGZ[0], dayStem, true, gender);
+            renderStemBox('natal-stem-month-container', pillars.monthGZ[0], dayStem, false, gender);
+            renderStemBox('natal-stem-year-container', pillars.yearGZ[0], dayStem, false, gender);
+
+            renderBranchBoxWithStage('natal-branch-hour-container', pillars.hourGZ[1], dayStem, dayBranch);
+            renderBranchBoxWithStage('natal-branch-day-container', pillars.dayGZ[1], dayStem, dayBranch);
+            renderBranchBoxWithStage('natal-branch-month-container', pillars.monthGZ[1], dayStem, dayBranch);
+            renderBranchBoxWithStage('natal-branch-year-container', pillars.yearGZ[1], dayStem, dayBranch);
+
+            renderShenSha('natal-shensha-hour-container', dayStem, dayBranch, pillars.hourGZ);
+            renderShenSha('natal-shensha-day-container', dayStem, dayBranch, pillars.dayGZ);
+            renderShenSha('natal-shensha-month-container', dayStem, dayBranch, pillars.monthGZ);
+            renderShenSha('natal-shensha-year-container', dayStem, dayBranch, pillars.yearGZ);
+
+            calculateAndRenderLuckPillars(pillars.yearGZ, pillars.monthGZ, gender, y, m, d, h, dayStem, dayBranch);
+            calculateElementsScore(pillars);
+        }
+
+        function calculateAndRenderLuckPillars(yearGZ, monthGZ, gender, birthYear, birthMonth, birthDay, birthHour, dayStem, dayBranch) {
+            const yearStem = yearGZ[0];
+            const isYangStem = ['甲', '丙', '戊', '庚', '壬'].includes(yearStem);
+            
+            const forward = (gender === '男' && isYangStem) || (gender === '女' && !isYangStem);
+
+            const luckStartInfo = calculateLuckStartAge(birthYear, birthMonth, birthDay, birthHour, forward);
+            const startAgeBase = luckStartInfo.years;
+            const startYearBase = luckStartInfo.startYear;
+
+            const mStemIdx = stems.indexOf(monthGZ[0]);
+            const mBranchIdx = branches.indexOf(monthGZ[1]);
+
+            let lucks = [];
+            for (let i = 1; i <= 8; i++) {
+                let sIdx = forward ? (mStemIdx + i) % 10 : (mStemIdx - i + 100) % 10;
+                let bIdx = forward ? (mBranchIdx + i) % 12 : (mBranchIdx - i + 120) % 12;
+
+                const gz = stems[sIdx] + branches[bIdx];
+                const age = startAgeBase + (i - 1) * 10;
+                const endAge = age + 9;
+                
+                const pStartYear = startYearBase + (i - 1) * 10;
+                const pEndYear = pStartYear + 9;
+                const yearsStr = `${pStartYear}-${pEndYear}`;
+
+                lucks.push({ gz, age, endAge, pStartYear, pEndYear, yearsStr });
+            }
+
+            document.getElementById('luck-start-age-label').innerHTML = `
+                <span class="w-2 h-2 rounded-full bg-amber-600"></span> 一生大運走勢（起運：${luckStartInfo.displayStr} ｜ 走向：${forward ? '順行' : '逆行'}）
+            `;
+
+            const currentYear = new Date().getFullYear();
+
+            let currentLuck = lucks[0];
+            for (let l of lucks) {
+                if (currentYear >= l.pStartYear && currentYear <= l.pEndYear) {
+                    currentLuck = l;
+                    break;
+                }
+            }
+
+            if (!activeLuckPillar || !lucks.some(l => l.gz === activeLuckPillar.gz)) {
+                activeLuckPillar = currentLuck;
+            }
+
+            const flowTermInfo = getSolarTermMonthBranch(selectedYear, selectedMonth, selectedDay);
+            const flowBaziYear = flowTermInfo.baziYear;
+            const flowMonthBranch = flowTermInfo.monthBranch;
+
+            // 計算流年
+            const yearStemIdx = (flowBaziYear - 4) % 10 < 0 ? ((flowBaziYear - 4) % 10 + 10) : (flowBaziYear - 4) % 10;
+            const yearBranchIdx = (flowBaziYear - 4) % 12 < 0 ? ((flowBaziYear - 4) % 12 + 12) : (flowBaziYear - 4) % 12;
+            const currentYearGZ = stems[yearStemIdx] + branches[yearBranchIdx];
+
+            // 計算流月
+            const lYearStem = currentYearGZ[0];
+            let startMonthStemIdx = 2;
+            if (lYearStem === '乙' || lYearStem === '庚') startMonthStemIdx = 4;
+            else if (lYearStem === '丙' || lYearStem === '辛') startMonthStemIdx = 6;
+            else if (lYearStem === '丁' || lYearStem === '壬') startMonthStemIdx = 8;
+            else if (lYearStem === '戊' || lYearStem === '癸') startMonthStemIdx = 0;
+
+            let mBranchOffset = (branches.indexOf(flowMonthBranch) - 2 + 12) % 12;
+            const currentMonthStem = stems[(startMonthStemIdx + mBranchOffset) % 10];
+            const currentMonthGZ = currentMonthStem + flowMonthBranch;
+
+            // 計算流日
+            const currentDayGZ = getExactDayGanZhi(selectedYear, selectedMonth, selectedDay, 12);
+
+            // 渲染大運
+            renderStemBox('stem-current-luck-container', activeLuckPillar.gz[0], dayStem, false, gender);
+            renderBranchBoxWithStage('branch-current-luck-container', activeLuckPillar.gz[1], dayStem, dayBranch);
+            renderShenSha('natal-shensha-luck-container', dayStem, dayBranch, activeLuckPillar.gz);
+
+            // 渲染流年
+            renderStemBox('stem-current-year-container', currentYearGZ[0], dayStem, false, gender);
+            renderBranchBoxWithStage('branch-current-year-container', currentYearGZ[1], dayStem, dayBranch);
+            renderShenSha('natal-shensha-year-container-extra', dayStem, dayBranch, currentYearGZ);
+
+            // 渲染流月
+            renderStemBox('stem-current-month-container', currentMonthGZ[0], dayStem, false, gender);
+            renderBranchBoxWithStage('branch-current-month-container', currentMonthGZ[1], dayStem, dayBranch);
+            renderShenSha('natal-shensha-month-container-extra', dayStem, dayBranch, currentMonthGZ);
+
+            // 渲染流日
+            renderStemBox('stem-current-day-container', currentDayGZ[0], dayStem, false, gender);
+            renderBranchBoxWithStage('branch-current-day-container', currentDayGZ[1], dayStem, dayBranch);
+            renderShenSha('natal-shensha-day-container-extra', dayStem, dayBranch, currentDayGZ);
+
+            const dayHeader = document.getElementById('day-header-label');
+            if (dayHeader) {
+                dayHeader.innerHTML = `流日 (${selectedDay}日)<br><span class="text-[9px] text-rose-900 font-bold">${currentDayGZ}</span>`;
+            }
+            const monthHeader = document.getElementById('month-header-label');
+            if (monthHeader) {
+                monthHeader.innerHTML = `流月 (${selectedMonth}月 / ${flowMonthBranch}月)<br><span class="text-[9px] text-purple-900 font-bold">${currentMonthGZ}</span>`;
+            }
+            const yearHeader = document.getElementById('year-header-label');
+            if (yearHeader) {
+                yearHeader.innerHTML = `流年 (${selectedYear}年)<br><span class="text-[9px] text-emerald-900 font-bold">${currentYearGZ}</span>`;
+            }
+            const luckHeader = document.getElementById('luck-header-label');
+            if (luckHeader) {
+                luckHeader.innerHTML = `現行大運<br><span class="text-[9px] text-sky-900 font-normal">(${activeLuckPillar.pStartYear}-${activeLuckPillar.pEndYear})</span>`;
+            }
+
+            // 渲染大運卡片 (直排顯示干支)
+            const container = document.getElementById('luck-pillars-container');
+            container.innerHTML = lucks.map(l => {
+                const isSelected = activeLuckPillar.gz === l.gz;
+                const isCurrent = currentYear >= l.pStartYear && currentYear <= l.pEndYear;
+                
+                let badgeHTML = '';
+                if (isCurrent) {
+                    badgeHTML = `<span class="absolute -top-1.5 -right-1 bg-red-500 text-white text-[8px] px-1 rounded-full font-bold">現</span>`;
+                }
+
+                const borderClass = isSelected ? 'border-sky-600 bg-sky-100/90 ring-2 ring-sky-200 shadow-sm' : 'border-slate-200 bg-white hover:bg-slate-50';
+
+                const stem = l.gz[0];
+                const branch = l.gz[1];
+                const stemColor = elementColorClasses[stemElement[stem]] || 'text-slate-800';
+                const branchColor = elementColorClasses[branchElement[branch]] || 'text-slate-800';
+
+                return `
+                    <div onclick="selectLuckPillar('${l.gz}', ${l.age}, ${l.endAge}, ${l.pStartYear}, ${l.pEndYear})" class="relative flex-shrink-0 w-16 p-1.5 rounded-xl border ${borderClass} cursor-pointer text-center transition duration-200 flex flex-col items-center">
+                        ${badgeHTML}
+                        <div class="text-[10px] text-slate-500 font-medium">${l.age}歲</div>
+                        <div class="my-1 font-black text-lg leading-tight flex flex-col items-center">
+                            <span class="${stemColor}">${stem}</span>
+                            <span class="${branchColor}">${branch}</span>
+                        </div>
+                        <div class="text-[9px] text-slate-400">${l.yearsStr}</div>
+                    </div>
+                `;
+            }).join('');
+
+            // 渲染選擇大運的十個流年列表 (直排顯示干支)
+            renderLuckYears(activeLuckPillar);
+        }
+
+        function renderLuckYears(luckPillar) {
+            const container = document.getElementById('luck-years-container');
+            const titleEl = document.getElementById('luck-years-title');
+            if (!container || !luckPillar) return;
+
+            if (titleEl) {
+                titleEl.innerHTML = `
+                    <span class="w-2 h-2 rounded-full bg-emerald-600"></span> 
+                    【${luckPillar.gz}大運】(${luckPillar.pStartYear}-${luckPillar.pEndYear}年 / ${luckPillar.age}-${luckPillar.endAge}歲) 的十個流年（點擊切換流年盤）
+                `;
+            }
+
+            let flowYearsHtml = '';
+            for (let y = luckPillar.pStartYear; y <= luckPillar.pEndYear; y++) {
+                const yStemIdx = (y - 4) % 10 < 0 ? ((y - 4) % 10 + 10) : (y - 4) % 10;
+                const yBranchIdx = (y - 4) % 12 < 0 ? ((y - 4) % 12 + 12) : (y - 4) % 12;
+                const flowYearGZ = stems[yStemIdx] + branches[yBranchIdx];
+                
+                const isSelectedYear = (y === selectedYear);
+                const isCurrentCalendarYear = (y === new Date().getFullYear());
+
+                let activeClass = isSelectedYear 
+                    ? 'border-emerald-600 bg-emerald-100 ring-2 ring-emerald-300 font-bold' 
+                    : 'border-slate-200 bg-white hover:bg-emerald-50/60';
+
+                const stem = flowYearGZ[0];
+                const branch = flowYearGZ[1];
+                const stemColor = elementColorClasses[stemElement[stem]] || 'text-slate-800';
+                const branchColor = elementColorClasses[branchElement[branch]] || 'text-slate-800';
+
+                flowYearsHtml += `
+                    <div onclick="selectFlowYear(${y})" class="relative flex flex-col items-center justify-center p-1.5 rounded-lg border ${activeClass} cursor-pointer transition duration-150 text-center min-w-[55px]">
+                        ${isCurrentCalendarYear ? '<span class="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-red-500"></span>' : ''}
+                        <span class="text-[10px] text-slate-500">${y}年</span>
+                        <div class="my-0.5 font-black text-sm leading-tight flex flex-col items-center">
+                            <span class="${stemColor}">${stem}</span>
+                            <span class="${branchColor}">${branch}</span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = flowYearsHtml;
+        }
+
+        function calculateElementsScore(pillars) {
+            const scores = { '木': 0, '火': 0, '土': 0, '金': 0, '水': 0 };
+            const allPillars = [pillars.yearGZ, pillars.monthGZ, pillars.dayGZ, pillars.hourGZ];
+
+            allPillars.forEach(gz => {
+                const s = gz[0];
+                const b = gz[1];
+                if (stemElement[s]) scores[stemElement[s]] += 0.6;
+                const hWeights = hiddenStemsWeights[b] || {};
+                for (let stem in hWeights) {
+                    const elem = stemElement[stem];
+                    if (elem) scores[elem] += 0.4 * hWeights[stem];
+                }
+            });
+
+            let total = Object.values(scores).reduce((a, b) => a + b, 0);
+            if (total === 0) total = 1;
+
+            document.getElementById('elements-score-total').innerText = `總權重：${total.toFixed(1)}`;
+
+            for (let elem in scores) {
+                const val = scores[elem];
+                const pct = Math.round((val / total) * 100);
+                const scoreEl = document.getElementById(`score-${getElementKey(elem)}`);
+                const barEl = document.getElementById(`bar-${getElementKey(elem)}`);
+                if (scoreEl) scoreEl.innerText = `${val.toFixed(1)} (${pct}%)`;
+                if (barEl) barEl.style.width = `${pct}%`;
+            }
+        }
+
+        function getElementKey(elem) {
+            const map = { '木': 'wood', '火': 'fire', '土': 'earth', '金': 'metal', '水': 'water' };
+            return map[elem] || 'wood';
+        }
+
+        // ==================== 流日記錄功能 ====================
+        const DIARY_STORAGE_KEY = 'bazi_diary_entries_v1';
+        let diaryScores = { self: 0, family: 0, work: 0 };
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                el.classList.remove('active', 'bg-indigo-600', 'text-white', 'border-indigo-600');
+                el.classList.add('bg-white', 'text-slate-700', 'border-slate-300');
+            });
+
+            const content = document.getElementById('tab-' + tabName);
+            const btn = document.getElementById('tab-' + tabName + '-btn');
+            if (content) content.classList.add('active');
+            if (btn) {
+                btn.classList.add('active', 'bg-indigo-600', 'text-white', 'border-indigo-600');
+                btn.classList.remove('bg-white', 'text-slate-700', 'border-slate-300');
+            }
+
+            if (tabName === 'diary') {
+                updateDiaryFormFromChart();
+                renderDiaryHistory();
+            }
+        }
+
+        function setupRatingButtons(containerId, scoreKey, labelId) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            container.querySelectorAll('.rating-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const score = parseInt(btn.dataset.score);
+                    diaryScores[scoreKey] = score;
+                    container.querySelectorAll('.rating-btn').forEach(b => {
+                        b.classList.remove('selected', 'selected-1', 'selected-2', 'selected-3', 'selected-4', 'selected-5');
+                    });
+                    btn.classList.add('selected', 'selected-' + score);
+                    const labelEl = document.getElementById(labelId);
+                    if (labelEl) {
+                        const texts = ['', '1 很差', '2 偏差', '3 普通', '4 不錯', '5 很好'];
+                        labelEl.textContent = texts[score] || '';
+                        labelEl.className = 'text-[11px] font-medium ' + (score <= 2 ? 'text-rose-600' : score === 3 ? 'text-amber-600' : 'text-emerald-600');
+                    }
+                });
+            });
+        }
+
+        function resetDiaryFormScores() {
+            diaryScores = { self: 0, family: 0, work: 0 };
+            ['rating-self', 'rating-family', 'rating-work'].forEach(id => {
+                const c = document.getElementById(id);
+                if (c) c.querySelectorAll('.rating-btn').forEach(b => b.classList.remove('selected', 'selected-1', 'selected-2', 'selected-3', 'selected-4', 'selected-5'));
+            });
+            ['score-self-label', 'score-family-label', 'score-work-label'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) { el.textContent = '未評分'; el.className = 'text-[11px] text-slate-400'; }
+            });
+            const noteEl = document.getElementById('diary-note');
+            if (noteEl) noteEl.value = '';
+        }
+
+        function getCurrentFlowGZs() {
+            const flowTermInfo = getSolarTermMonthBranch(selectedYear, selectedMonth, selectedDay);
+            const flowBaziYear = flowTermInfo.baziYear;
+            const flowMonthBranch = flowTermInfo.monthBranch;
+
+            const yearStemIdx = ((flowBaziYear - 4) % 10 + 10) % 10;
+            const yearBranchIdx = ((flowBaziYear - 4) % 12 + 12) % 12;
+            const currentYearGZ = stems[yearStemIdx] + branches[yearBranchIdx];
+
+            const lYearStem = currentYearGZ[0];
+            let startMonthStemIdx = 2;
+            if (lYearStem === '乙' || lYearStem === '庚') startMonthStemIdx = 4;
+            else if (lYearStem === '丙' || lYearStem === '辛') startMonthStemIdx = 6;
+            else if (lYearStem === '丁' || lYearStem === '壬') startMonthStemIdx = 8;
+            else if (lYearStem === '戊' || lYearStem === '癸') startMonthStemIdx = 0;
+
+            let mBranchOffset = (branches.indexOf(flowMonthBranch) - 2 + 12) % 12;
+            const currentMonthStem = stems[(startMonthStemIdx + mBranchOffset) % 10];
+            const currentMonthGZ = currentMonthStem + flowMonthBranch;
+
+            const currentDayGZ = getExactDayGanZhi(selectedYear, selectedMonth, selectedDay, 12);
+            const luckGZ = activeLuckPillar ? activeLuckPillar.gz : '--';
+
+            return {
+                dayGZ: currentDayGZ,
+                monthGZ: currentMonthGZ,
+                yearGZ: currentYearGZ,
+                luckGZ: luckGZ,
+                baziYear: flowBaziYear,
+                monthBranch: flowMonthBranch
+            };
+        }
+
+        function updateDiaryFormFromChart() {
+            const gzs = getCurrentFlowGZs();
+            const name = document.getElementById('natal-name-input')?.value || '命主本人';
+            const gender = document.getElementById('natal-gender')?.value || '男';
+            const y = document.getElementById('natal-select-year')?.value || '';
+            const m = document.getElementById('natal-select-month')?.value || '';
+            const d = document.getElementById('natal-select-day')?.value || '';
+            const h = document.getElementById('natal-select-hour')?.value || '';
+
+            // 取得日主（用於十神、十二長生、神煞）
+            const ny = parseInt(y) || 1990;
+            const nm = parseInt(m) || 1;
+            const nd = parseInt(d) || 1;
+            const nh = parseInt(h) || 12;
+            const natalPillars = getCorrectBaziPillars(ny, nm, nd, nh);
+            const dayStem = natalPillars.dayGZ[0];
+            const dayBranch = natalPillars.dayGZ[1];
+
+            document.getElementById('diary-date-label').textContent = `${selectedYear}年${selectedMonth}月${selectedDay}日`;
+            document.getElementById('diary-natal-summary').textContent = `${name}（${gender}） ${y}-${m}-${d} ${h}時 ｜ 日主：${dayStem}`;
+
+            // 標題顯示干支
+            const hdrDay = document.getElementById('diary-header-day');
+            const hdrMonth = document.getElementById('diary-header-month');
+            const hdrYear = document.getElementById('diary-header-year');
+            const hdrLuck = document.getElementById('diary-header-luck');
+            if (hdrDay) hdrDay.innerHTML = `流日<br><span class="font-bold">${gzs.dayGZ}</span>`;
+            if (hdrMonth) hdrMonth.innerHTML = `流月<br><span class="font-bold">${gzs.monthGZ}</span>`;
+            if (hdrYear) hdrYear.innerHTML = `流年<br><span class="font-bold">${gzs.yearGZ}</span>`;
+            if (hdrLuck) hdrLuck.innerHTML = `大運<br><span class="font-bold">${gzs.luckGZ}</span>`;
+
+            // 渲染天干（含十神）
+            renderStemBox('diary-stem-day', gzs.dayGZ[0], dayStem, false, gender);
+            renderStemBox('diary-stem-month', gzs.monthGZ[0], dayStem, false, gender);
+            renderStemBox('diary-stem-year', gzs.yearGZ[0], dayStem, false, gender);
+            if (gzs.luckGZ && gzs.luckGZ.length >= 2) {
+                renderStemBox('diary-stem-luck', gzs.luckGZ[0], dayStem, false, gender);
+            } else {
+                const el = document.getElementById('diary-stem-luck');
+                if (el) el.innerHTML = '<span class="text-slate-400 text-xs">--</span>';
+            }
+
+            // 渲染地支（含十二長生、藏干、空亡）
+            renderBranchBoxWithStage('diary-branch-day', gzs.dayGZ[1], dayStem, dayBranch);
+            renderBranchBoxWithStage('diary-branch-month', gzs.monthGZ[1], dayStem, dayBranch);
+            renderBranchBoxWithStage('diary-branch-year', gzs.yearGZ[1], dayStem, dayBranch);
+            if (gzs.luckGZ && gzs.luckGZ.length >= 2) {
+                renderBranchBoxWithStage('diary-branch-luck', gzs.luckGZ[1], dayStem, dayBranch);
+            } else {
+                const el = document.getElementById('diary-branch-luck');
+                if (el) el.innerHTML = '<span class="text-slate-400 text-xs">--</span>';
+            }
+
+            // 渲染神煞
+            renderShenSha('diary-shensha-day', dayStem, dayBranch, gzs.dayGZ);
+            renderShenSha('diary-shensha-month', dayStem, dayBranch, gzs.monthGZ);
+            renderShenSha('diary-shensha-year', dayStem, dayBranch, gzs.yearGZ);
+            if (gzs.luckGZ && gzs.luckGZ.length >= 2) {
+                renderShenSha('diary-shensha-luck', dayStem, dayBranch, gzs.luckGZ);
+            } else {
+                const el = document.getElementById('diary-shensha-luck');
+                if (el) el.innerHTML = '';
+            }
+
+            // 載入已有記錄
+            const entries = loadDiaryEntries();
+            const dateKey = `${selectedYear}-${String(selectedMonth).padStart(2,'0')}-${String(selectedDay).padStart(2,'0')}`;
+            const existing = entries.find(e => e.date === dateKey);
+            if (existing) {
+                diaryScores.self = existing.scores.self || 0;
+                diaryScores.family = existing.scores.family || 0;
+                diaryScores.work = existing.scores.work || 0;
+                setRatingUI('rating-self', 'score-self-label', diaryScores.self);
+                setRatingUI('rating-family', 'score-family-label', diaryScores.family);
+                setRatingUI('rating-work', 'score-work-label', diaryScores.work);
+                const noteEl = document.getElementById('diary-note');
+                if (noteEl) noteEl.value = existing.note || '';
+            } else {
+                resetDiaryFormScores();
+            }
+        }
+
+        function setRatingUI(containerId, labelId, score) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            container.querySelectorAll('.rating-btn').forEach(b => {
+                b.classList.remove('selected', 'selected-1', 'selected-2', 'selected-3', 'selected-4', 'selected-5');
+                if (parseInt(b.dataset.score) === score) {
+                    b.classList.add('selected', 'selected-' + score);
+                }
+            });
+            const labelEl = document.getElementById(labelId);
+            if (labelEl && score > 0) {
+                const texts = ['', '1 很差', '2 偏差', '3 普通', '4 不錯', '5 很好'];
+                labelEl.textContent = texts[score] || '';
+                labelEl.className = 'text-[11px] font-medium ' + (score <= 2 ? 'text-rose-600' : score === 3 ? 'text-amber-600' : 'text-emerald-600');
+            }
+        }
+
+        function loadDiaryEntries() {
+            try {
+                const raw = localStorage.getItem(DIARY_STORAGE_KEY);
+                return raw ? JSON.parse(raw) : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function saveDiaryEntries(entries) {
+            try {
+                localStorage.setItem(DIARY_STORAGE_KEY, JSON.stringify(entries));
+                return true;
+            } catch (e) {
+                console.error('Save diary failed', e);
+                return false;
+            }
+        }
+
+        function saveCurrentDiary() {
+            if (diaryScores.self === 0 || diaryScores.family === 0 || diaryScores.work === 0) {
+                showDiaryMsg('請為「自我、家庭、工作」三項都評分（1-5）後再儲存', 'error');
+                return;
+            }
+
+            const gzs = getCurrentFlowGZs();
+            const name = document.getElementById('natal-name-input')?.value || '命主本人';
+            const gender = document.getElementById('natal-gender')?.value || '男';
+            const ny = parseInt(document.getElementById('natal-select-year')?.value || 0);
+            const nm = parseInt(document.getElementById('natal-select-month')?.value || 0);
+            const nd = parseInt(document.getElementById('natal-select-day')?.value || 0);
+            const nh = parseInt(document.getElementById('natal-select-hour')?.value || 0);
+            const note = document.getElementById('diary-note')?.value?.trim() || '';
+
+            const dateKey = `${selectedYear}-${String(selectedMonth).padStart(2,'0')}-${String(selectedDay).padStart(2,'0')}`;
+
+            const entry = {
+                id: dateKey + '_' + Date.now(),
+                date: dateKey,
+                year: selectedYear,
+                month: selectedMonth,
+                day: selectedDay,
+                scores: { ...diaryScores },
+                note: note,
+                flow: {
+                    dayGZ: gzs.dayGZ,
+                    monthGZ: gzs.monthGZ,
+                    yearGZ: gzs.yearGZ,
+                    luckGZ: gzs.luckGZ
+                },
+                natal: {
+                    name, gender,
+                    year: ny, month: nm, day: nd, hour: nh
+                },
+                savedAt: new Date().toISOString()
+            };
+
+            let entries = loadDiaryEntries();
+            entries = entries.filter(e => e.date !== dateKey);
+            entries.push(entry);
+            entries.sort((a, b) => b.date.localeCompare(a.date));
+
+            if (saveDiaryEntries(entries)) {
+                showDiaryMsg('✓ 已儲存 ' + dateKey + ' 的記錄', 'success');
+                renderDiaryHistory();
+            } else {
+                showDiaryMsg('儲存失敗，可能是瀏覽器儲存空間不足', 'error');
+            }
+        }
+
+        function showDiaryMsg(text, type) {
+            const el = document.getElementById('diary-save-msg');
+            if (!el) return;
+            el.textContent = text;
+            el.className = 'text-[11px] text-center ' + (type === 'success' ? 'text-emerald-600' : 'text-rose-600');
+            el.classList.remove('hidden');
+            setTimeout(() => el.classList.add('hidden'), 3000);
+        }
+
+        function renderDiaryHistory() {
+            const listEl = document.getElementById('diary-history-list');
+            const emptyEl = document.getElementById('diary-empty-msg');
+            const countEl = document.getElementById('diary-count-label');
+            if (!listEl) return;
+
+            const entries = loadDiaryEntries();
+            if (countEl) countEl.textContent = `共 ${entries.length} 筆`;
+
+            if (entries.length === 0) {
+                listEl.innerHTML = '';
+                if (emptyEl) emptyEl.style.display = 'block';
+                return;
+            }
+            if (emptyEl) emptyEl.style.display = 'none';
+
+            listEl.innerHTML = entries.map(e => {
+                const s = e.scores || {};
+                const scoreBadge = (val) => {
+                    if (!val) return '<span class="text-slate-300">-</span>';
+                    const colors = ['', 'bg-rose-100 text-rose-700', 'bg-orange-100 text-orange-700', 'bg-amber-100 text-amber-700', 'bg-lime-100 text-lime-700', 'bg-emerald-100 text-emerald-700'];
+                    return `<span class="inline-block w-6 h-6 leading-6 text-center rounded-full text-[11px] font-bold ${colors[val] || ''}">${val}</span>`;
+                };
+                const flow = e.flow || {};
+                return `
+                    <div class="p-3 hover:bg-slate-50 transition">
+                        <div class="flex justify-between items-start gap-2 mb-1.5">
+                            <div>
+                                <span class="font-bold text-sm text-slate-800">${e.date}</span>
+                                <span class="text-[11px] text-slate-500 ml-2">${flow.dayGZ || ''} 日</span>
+                            </div>
+                            <button onclick="deleteDiaryEntry('${e.date}')" class="text-[10px] text-rose-500 hover:text-rose-700 px-1.5 py-0.5 rounded hover:bg-rose-50">刪除</button>
+                        </div>
+                        <div class="flex gap-3 text-xs mb-1.5">
+                            <span class="flex items-center gap-1">自我 ${scoreBadge(s.self)}</span>
+                            <span class="flex items-center gap-1">家庭 ${scoreBadge(s.family)}</span>
+                            <span class="flex items-center gap-1">工作 ${scoreBadge(s.work)}</span>
+                        </div>
+                        <div class="text-[10px] text-slate-500 flex flex-wrap gap-x-2 gap-y-0.5">
+                            <span>大運 ${flow.luckGZ || '--'}</span>
+                            <span>流年 ${flow.yearGZ || '--'}</span>
+                            <span>流月 ${flow.monthGZ || '--'}</span>
+                        </div>
+                        ${e.note ? `<div class="mt-1.5 text-[11px] text-slate-600 bg-slate-50 rounded px-2 py-1">${escapeHtml(e.note)}</div>` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        function deleteDiaryEntry(dateKey) {
+            if (!confirm('確定刪除 ' + dateKey + ' 的記錄？')) return;
+            let entries = loadDiaryEntries();
+            entries = entries.filter(e => e.date !== dateKey);
+            saveDiaryEntries(entries);
+            renderDiaryHistory();
+            const currentKey = `${selectedYear}-${String(selectedMonth).padStart(2,'0')}-${String(selectedDay).padStart(2,'0')}`;
+            if (currentKey === dateKey) resetDiaryFormScores();
+            showDiaryMsg('已刪除 ' + dateKey, 'success');
+        }
+
+        function getTenGod(dayStem, targetStem) {
+            if (!dayStem || !targetStem || !tenGodMap[dayStem]) return '';
+            return tenGodMap[dayStem][targetStem] || '';
+        }
+
+        function getStemElement(stem) {
+            return stemElement[stem] || '';
+        }
+
+        function getBranchElement(branch) {
+            return branchElement[branch] || '';
+        }
+
+        function csvEscape(val) {
+            if (val === null || val === undefined) return '';
+            const s = String(val);
+            if (s.includes(',') || s.includes('"') || s.includes('\n') || s.includes('\r')) {
+                return '"' + s.replace(/"/g, '""') + '"';
+            }
+            return s;
+        }
+
+        function exportDiaryCSV() {
+            const entries = loadDiaryEntries();
+            if (entries.length === 0) {
+                alert('目前沒有任何記錄可匯出');
+                return;
+            }
+
+            // 依日期由舊到新排序，方便時間序列分析
+            const sorted = [...entries].sort((a, b) => a.date.localeCompare(b.date));
+
+            const headers = [
+                '日期',
+                '年', '月', '日',
+                '自我分數', '家庭分數', '工作分數',
+                '平均分數',
+                '備註',
+                '流日干支', '流日天干', '流日地支', '流日十神', '流日天干五行', '流日地支五行',
+                '流月干支', '流月天干', '流月地支', '流月十神', '流月天干五行', '流月地支五行',
+                '流年干支', '流年天干', '流年地支', '流年十神', '流年天干五行', '流年地支五行',
+                '大運干支', '大運天干', '大運地支', '大運十神', '大運天干五行', '大運地支五行',
+                '命主日主', '命主日主五行',
+                '命主姓名', '命主性別',
+                '命主出生年', '命主出生月', '命主出生日', '命主出生時',
+                '記錄時間'
+            ];
+
+            const rows = sorted.map(e => {
+                const s = e.scores || {};
+                const flow = e.flow || {};
+                const natal = e.natal || {};
+                const dayMaster = (natal.year && natal.month && natal.day)
+                    ? (getCorrectBaziPillars(natal.year, natal.month, natal.day, natal.hour || 12).dayGZ[0])
+                    : '';
+
+                const avg = ((s.self || 0) + (s.family || 0) + (s.work || 0)) / 3;
+
+                const parseGZ = (gz) => {
+                    if (!gz || gz.length < 2) return { stem: '', branch: '' };
+                    return { stem: gz[0], branch: gz[1] };
+                };
+
+                const day = parseGZ(flow.dayGZ);
+                const month = parseGZ(flow.monthGZ);
+                const year = parseGZ(flow.yearGZ);
+                const luck = parseGZ(flow.luckGZ);
+
+                return [
+                    e.date,
+                    e.year, e.month, e.day,
+                    s.self || '', s.family || '', s.work || '',
+                    avg ? avg.toFixed(2) : '',
+                    e.note || '',
+                    flow.dayGZ || '', day.stem, day.branch, getTenGod(dayMaster, day.stem), getStemElement(day.stem), getBranchElement(day.branch),
+                    flow.monthGZ || '', month.stem, month.branch, getTenGod(dayMaster, month.stem), getStemElement(month.stem), getBranchElement(month.branch),
+                    flow.yearGZ || '', year.stem, year.branch, getTenGod(dayMaster, year.stem), getStemElement(year.stem), getBranchElement(year.branch),
+                    flow.luckGZ || '', luck.stem, luck.branch, getTenGod(dayMaster, luck.stem), getStemElement(luck.stem), getBranchElement(luck.branch),
+                    dayMaster, getStemElement(dayMaster),
+                    natal.name || '', natal.gender || '',
+                    natal.year || '', natal.month || '', natal.day || '', natal.hour || '',
+                    e.savedAt || ''
+                ].map(csvEscape).join(',');
+            });
+
+            // UTF-8 BOM 方便 Excel 正確顯示中文
+            const bom = '\uFEFF';
+            const csvContent = bom + headers.join(',') + '\n' + rows.join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `bazi-diary-${new Date().toISOString().slice(0,10)}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showDiaryMsg('已匯出 ' + entries.length + ' 筆記錄（CSV）', 'success');
+        }
+
+
+        function exportDiaryJSON() {
+            const entries = loadDiaryEntries();
+            if (entries.length === 0) {
+                alert('目前沒有任何記錄可匯出');
+                return;
+            }
+            const data = {
+                exportVersion: 1,
+                exportedAt: new Date().toISOString(),
+                app: '干支八字雙盤對比與神煞專業排盤器',
+                count: entries.length,
+                entries: entries
+            };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `bazi-diary-backup-${new Date().toISOString().slice(0,10)}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showDiaryMsg('已匯出完整備份 ' + entries.length + ' 筆（JSON）', 'success');
+        }
+
+        function importDiary(file) {
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    let incoming = [];
+                    if (Array.isArray(data)) {
+                        incoming = data;
+                    } else if (data.entries && Array.isArray(data.entries)) {
+                        incoming = data.entries;
+                    } else {
+                        alert('檔案格式不正確，請使用本 App 匯出的 JSON 檔');
+                        return;
+                    }
+
+                    let existing = loadDiaryEntries();
+                    const map = {};
+                    existing.forEach(en => { map[en.date] = en; });
+                    let added = 0, updated = 0;
+                    incoming.forEach(en => {
+                        if (!en.date) return;
+                        if (map[en.date]) updated++;
+                        else added++;
+                        map[en.date] = en;
+                    });
+                    const merged = Object.values(map).sort((a, b) => b.date.localeCompare(a.date));
+                    saveDiaryEntries(merged);
+                    renderDiaryHistory();
+                    updateDiaryFormFromChart();
+                    alert(`匯入完成：新增 ${added} 筆，更新 ${updated} 筆。目前共 ${merged.length} 筆。`);
+                } catch (err) {
+                    alert('讀取檔案失敗，請確認是有效的 JSON 檔');
+                    console.error(err);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function clearAllDiary() {
+            if (!confirm('確定要清空所有流日記錄？此操作無法復原（請先匯出備份）。')) return;
+            if (!confirm('再次確認：真的要刪除全部記錄嗎？')) return;
+            saveDiaryEntries([]);
+            renderDiaryHistory();
+            resetDiaryFormScores();
+            showDiaryMsg('已清空所有記錄', 'success');
+        }
+
+        window.deleteDiaryEntry = deleteDiaryEntry;
+
+        window.addEventListener('DOMContentLoaded', function() {
+            try {
+                initSelectors();
+                loadSavedNatal();
+                calculateNatalBazi();
+
+                const calcFlowBtn = document.getElementById('calc-flow-btn');
+                if (calcFlowBtn) calcFlowBtn.addEventListener('click', () => {
+                    calculateNatalBazi();
+                    if (document.getElementById('tab-diary')?.classList.contains('active')) {
+                        updateDiaryFormFromChart();
+                    }
+                });
+
+                const setNowBtn = document.getElementById('set-now-flow-btn');
+                if (setNowBtn) setNowBtn.addEventListener('click', () => {
+                    setToTodayFlow();
+                    if (document.getElementById('tab-diary')?.classList.contains('active')) {
+                        updateDiaryFormFromChart();
+                    }
+                });
+
+                const saveNatalBtn = document.getElementById('save-natal-btn');
+                if (saveNatalBtn) {
+                    saveNatalBtn.addEventListener('click', () => {
+                        activeLuckPillar = null;
+                        calculateNatalBazi();
+                    });
+                }
+
+                const loadSampleBtn = document.getElementById('load-sample-natal');
+                if (loadSampleBtn) {
+                    loadSampleBtn.addEventListener('click', () => {
+                        activeLuckPillar = null;
+                        loadSampleNatal();
+                    });
+                }
+
+                // Tab buttons
+                document.getElementById('tab-chart-btn')?.addEventListener('click', () => switchTab('chart'));
+                document.getElementById('tab-diary-btn')?.addEventListener('click', () => switchTab('diary'));
+
+                // Diary rating buttons
+                setupRatingButtons('rating-self', 'self', 'score-self-label');
+                setupRatingButtons('rating-family', 'family', 'score-family-label');
+                setupRatingButtons('rating-work', 'work', 'score-work-label');
+
+                // Diary actions
+                document.getElementById('save-diary-btn')?.addEventListener('click', saveCurrentDiary);
+                document.getElementById('clear-diary-form-btn')?.addEventListener('click', () => {
+                    resetDiaryFormScores();
+                    showDiaryMsg('已清除表單', 'success');
+                });
+                document.getElementById('export-diary-csv-btn')?.addEventListener('click', exportDiaryCSV);
+                document.getElementById('export-diary-json-btn')?.addEventListener('click', exportDiaryJSON);
+                document.getElementById('clear-all-diary-btn')?.addEventListener('click', clearAllDiary);
+
+                const importInput = document.getElementById('import-diary-input');
+                if (importInput) {
+                    importInput.addEventListener('change', (e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                            importDiary(file);
+                            e.target.value = '';
+                        }
+                    });
+                }
+
+                ['active-year-select', 'active-month-select', 'active-day-select'].forEach(id => {
+                    document.getElementById(id)?.addEventListener('change', () => {
+                        if (document.getElementById('tab-diary')?.classList.contains('active')) {
+                            setTimeout(updateDiaryFormFromChart, 50);
+                        }
+                    });
+                });
+
+            } catch (err) {
+                console.error("Initialization error:", err);
+            }
+        });
+    </script>
+</body>
+</html>
